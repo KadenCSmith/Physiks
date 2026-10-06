@@ -83,7 +83,7 @@ The workflow builds under `/<your-repository-name>/`. It never deploys pull requ
 | Mac with Apple Silicon (M-series) | `mac-arm64.dmg` |
 | Mac with Intel processor | `mac-x64.dmg` |
 | Windows with Intel/AMD 64-bit processor | `win-x64.exe` |
-| Linux with Intel/AMD 64-bit processor | `linux-x64.AppImage` |
+| Linux with Intel/AMD 64-bit processor | `linux-x86_64.AppImage` |
 
 Filenames include the app name and version. Each release includes SHA-256 checksums. Mac builds are ad-hoc signed, not Developer ID signed or notarized; Windows builds are not certificate signed, so operating systems may require a trust decision before opening them.
 

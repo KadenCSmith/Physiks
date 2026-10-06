@@ -5,7 +5,7 @@ Desktop downloads built from this version's source after its automated checks pa
 | Mac with Apple Silicon (M-series) | `mac-arm64.dmg` |
 | Mac with an Intel processor | `mac-x64.dmg` |
 | Windows with an Intel/AMD 64-bit processor | `win-x64.exe` |
-| Linux with an Intel/AMD 64-bit processor | `linux-x64.AppImage` |
+| Linux with an Intel/AMD 64-bit processor | `linux-x86_64.AppImage` |
 
 The actual filenames include the app name and version. `SHA256SUMS.txt` contains checksums for all four installers. Download an installer rather than GitHub's automatically generated source archives.
 
