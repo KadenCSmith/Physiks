@@ -2,7 +2,7 @@
 
 A working, AI-ready React + TypeScript starter for interactive apps with the same black canvas, thin typography, Simulation dropdown, Finder, Toolbox, and live equation layout as the Zombie Fire and Vibrations apps.
 
-**[Use this template](https://github.com/KadenCSmith/cinematic-app-framework/generate)** · **[Open the live example](https://kadencsmith.github.io/cinematic-app-framework/)** · **[Download the app](https://github.com/KadenCSmith/cinematic-app-framework/releases/latest)**
+**[Use this template](https://github.com/KadenCSmith/Physiks/generate)** · **[Open the live example](https://kadencsmith.github.io/Physiks/)** · **[Download the app](https://github.com/KadenCSmith/Physiks/releases/latest)**
 
 The reusable shell lives in `src/framework`. Two replaceable examples demonstrate a repeating oscillator and a nonrepeating relaxation model. The original projects and study materials are separate from this starter.
 
@@ -78,7 +78,7 @@ The workflow builds under `/<your-repository-name>/`. It never deploys pull requ
 
 ## Desktop downloads
 
-[The latest GitHub release](https://github.com/KadenCSmith/cinematic-app-framework/releases/latest) contains four prebuilt installers:
+[The latest GitHub release](https://github.com/KadenCSmith/Physiks/releases/latest) contains four prebuilt installers:
 
 | Computer | Package |
 | --- | --- |

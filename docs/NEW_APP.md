@@ -30,6 +30,8 @@ Build the scene from `parameters` and `snapshot`. For a drag interaction, call `
 
 The learning panel receives the same snapshot. Label fixed values separately from changing values so the substituted equation is easy to read. Include the underlying derivative steps or geometry in `formulas`, with an explanatory group and accurate source references when applicable.
 
+Generated scenes and lessons already use the shared `useNumberFormat` hook. Keep it for displayed values so Toolbox's maximum-decimal setting applies everywhere, without trailing zeros. Use original numbers for model sampling, geometry, and editable inputs. Keep symbolic math static and show changing numeric substitutions with labeled React text.
+
 Optional `plots` use snapshot keys. Each entry needs a readable label and unit. Optional `Details` can explain the apparatus or reduction steps without crowding the scene.
 
 Finally, import the definition in `src/models.ts` and add it to the array. Menus, Toolbox, Finder, keyboard selection, and saved model settings update from that registration. Remove the examples once the real app is ready.

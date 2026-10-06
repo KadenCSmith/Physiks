@@ -30,11 +30,15 @@ The baseline's bundled Electron frameworks accounted for 299,530,115 bytes. Vers
 | Local arm64 artifact | Baseline (bytes) | Pass 1 (bytes) | Pass 2 (bytes) |
 | --- | ---: | ---: | ---: |
 | Unpacked app | 338,767,257 | 301,556,949 | 4,445,406 |
-| DMG | 133,849,169 | 127,518,527 | 2,605,525 |
+| DMG | 133,849,169 | 127,518,527 | 2,605,603 |
 
-The pass-2 DMG is 98.05% smaller than the baseline. These measurements are from a local Mac build; native CI artifacts can differ. The local DMG SHA-256 is `f080008bbeaf066ce5c0103047c947e1b645b33d7f5b80e73cdd20a51c0a903c`.
+The pass-2 DMG is 98.05% smaller than the baseline. These measurements are from a local Mac build; native CI artifacts can differ. The local DMG SHA-256 is `0c7f828c05b545348e5105b24e713f47019d9c84127148a6928cdd1c049bd301`.
 
 Local verification: frontend typecheck/lint, generated-model validation, 93 tests, eight native tests, and a successful arm64 installer build. The updated installed app ran from `/Applications` and passed deep/strict signature verification. This remains an ad-hoc signature, not proof of notarization. Browser-downloaded Gatekeeper acceptance requires its own check and user approval when macOS requests it. Windows/Intel Mac/Linux runtime compatibility is not established by local arm64 testing.
+
+Native UI checks covered both example models, model switching, labeled live math, Finder search, parameter edits, three-to-six-to-three decimal preference changes, and Pause preservation. The default display shows `2 kg`, `0.25×`, and at most three decimal places. The test-only relaxation target was restored and the oscillator was left playing.
+
+The public v0.3.0 release completed all four native build jobs: Mac arm64 2,630,366 bytes, Intel Mac 2,764,582 bytes, Windows x64 2,201,352 bytes, and Linux x64 81,463,800 bytes. Linux still carries its required library ecosystem. The downloaded public arm64 DMG matched its published SHA-256 checksum. These are build/download checks; other-platform runtime opening was not tested on this Mac.
 
 ## Animation and display precision
 
