@@ -13,6 +13,8 @@ This version uses Tauri v2 and the operating system's webview, preserving the sh
 
 Animation now follows display frames and reuses graph curves and static formulas. Displayed values default to **up to three decimal places**, without trailing zeros; choose **Toolbox → Decimal places** to select a maximum of 0–6. Calculations and editable model values retain full precision. Both simple reference models remain included.
 
+Simulation, Finder, and Toolbox logos share a balanced bottom alignment in full, compact, and mobile headers.
+
 For a Mac, open the DMG and then the app inside it. After macOS permits launch, one **Install and open** prompt covers copying to Applications, opening the installed copy, and ejecting and moving the installer to recoverable Trash after successful startup. Updating an existing copy uses **Replace and open** in the same prompt. **Not now** keeps the existing app and installer unchanged. Routine installed launches have no setup or cleanup prompts. Mounting the DMG alone cannot install the app or grant macOS approval.
 
 Default Mac builds are ad-hoc signed, not Apple Developer ID signed or notarized. If you trust the download and macOS blocks it, first attempt to open it, then follow [Apple's Open Anyway instructions](https://support.apple.com/en-us/102445) in System Settings → Privacy & Security. The app cannot make that trust decision for you. Windows builds are not certificate signed. Owner-configured Mac credentials can enable Developer ID signing and notarization; check the release build's stated result before assuming they were used.

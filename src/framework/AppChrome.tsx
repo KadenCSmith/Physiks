@@ -14,13 +14,13 @@ export type AppChromeProps = {
 }
 
 function Pinwheel() {
-  return <svg className="version-pinwheel" viewBox="0 0 72 136" aria-hidden="true"><path d="M36 38v96" /><g className="pinwheel-rotor">{[0, 90, 180, 270].map(angle => <path key={angle} transform={`rotate(${angle} 36 33)`} d="M39 29C54 29 60 21 55 12C51 5 39 1 37 8C35 14 40 20 36 26" />)}<circle cx="36" cy="33" r="3.2" /></g></svg>
+  return <svg className="version-pinwheel" viewBox="0 0 72 134" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><path d="M36 38v96" /><g className="pinwheel-rotor">{[0, 90, 180, 270].map(angle => <path key={angle} transform={`rotate(${angle} 36 33)`} d="M39 29C54 29 60 21 55 12C51 5 39 1 37 8C35 14 40 20 36 26" />)}<circle cx="36" cy="33" r="3.2" /></g></svg>
 }
 function FinderIcon() {
-  return <svg viewBox="0 0 106 106" aria-hidden="true"><path d="M4 5l35 35V4h6v45H3v-6h31L1 10zM53 4h49v24L77 51H53zM77 51V34q0-7 7-7h18" /><circle cx="29" cy="75" r="18" /><path d="M16 88L3 102l5 4 13-15" /><circle cx="79" cy="80" r="24" />{Array.from({ length: 9 }, (_, i) => { const a = i * Math.PI * 2 / 9; return <circle key={i} cx={79 + 17 * Math.cos(a)} cy={80 + 17 * Math.sin(a)} r="3.5" /> })}</svg>
+  return <svg viewBox="0 0 106 106" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><path d="M4 5l35 35V4h6v45H3v-6h31L1 10zM53 4h49v24L77 51H53zM77 51V34q0-7 7-7h18" /><circle cx="29" cy="75" r="18" /><path d="M16 88L3 102l5 4 13-15" /><circle cx="79" cy="80" r="24" />{Array.from({ length: 9 }, (_, i) => { const a = i * Math.PI * 2 / 9; return <circle key={i} cx={79 + 17 * Math.cos(a)} cy={80 + 17 * Math.sin(a)} r="3.5" /> })}</svg>
 }
 function ToolboxIcon() {
-  return <svg viewBox="0 0 185 100" aria-hidden="true"><path d="M26 3L55 20 40 47l31 18q15 9 7 23t-24 5L24 75 8 99-18 82 0 50l12 7 8-14-12-7z" transform="translate(22 -2) scale(.9)" /><path d="M131 8h29l21 37-21 37h-42L97 45l21-37z" /><circle cx="139" cy="45" r="18" /></svg>
+  return <svg viewBox="0 0 185 87.1" preserveAspectRatio="xMidYMax meet" aria-hidden="true"><path d="M26 3L55 20 40 47l31 18q15 9 7 23t-24 5L24 75 8 99-18 82 0 50l12 7 8-14-12-7z" transform="translate(22 -2) scale(.9)" /><path d="M131 8h29l21 37-21 37h-42L97 45l21-37z" /><circle cx="139" cy="45" r="18" /></svg>
 }
 
 export function AppChrome({ config, models, activeId, onModel, onResetView }: AppChromeProps) {

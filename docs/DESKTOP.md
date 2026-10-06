@@ -101,11 +101,11 @@ Tauri also supports App Store Connect API notarization through `APPLE_API_ISSUER
 
 ## Publish versioned downloads
 
-[`release.yml`](../.github/workflows/release.yml) runs for a version tag. Commit the application and matching package/lockfile version first. For version 0.3.1:
+[`release.yml`](../.github/workflows/release.yml) runs for a version tag. Commit the application and matching package/lockfile version first. For version 0.3.2:
 
 ```sh
-git tag v0.3.1
-git push origin v0.3.1
+git tag v0.3.2
+git push origin v0.3.2
 ```
 
 Use a new `v<package.json version>` for each release. Do not reuse or move a published tag.

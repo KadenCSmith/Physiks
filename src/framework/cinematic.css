@@ -2,7 +2,7 @@
    Header, original navigation icons, drawers, and portals retain that design. */
 body.cinematic-ui{--paper:#c3c3c3;--line:#333;--muted:#777;background:#000;color:var(--paper);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif}
 body.cinematic-ui{overflow-x:clip}
-.cinematic-header{position:fixed;inset:0 0 auto;z-index:1100;display:grid;grid-template-columns:18vw 39vw 24vw minmax(0,10vw);gap:0;height:145px;padding:20px 4.5vw;background:linear-gradient(#000 72%,#0000);color:#aaa;transition:height .5s,padding .5s}
+.cinematic-header{--nav-icon-height:100px;position:fixed;inset:0 0 auto;z-index:1100;display:grid;grid-template-columns:18vw 39vw 24vw minmax(0,10vw);gap:0;height:145px;padding:20px 4.5vw;background:linear-gradient(#000 72%,#0000);color:#aaa;transition:height .5s,padding .5s}
 .cinematic-header>*{min-width:0}
 .cinematic-header button{background:none;border:0;border-radius:0;color:inherit;padding:0;font-family:inherit;font-weight:200;text-align:left;cursor:pointer}
 .cinematic-header button:hover{color:#f0f0f0}
@@ -12,28 +12,27 @@ body.cinematic-ui{overflow-x:clip}
 .cinematic-nav-button{display:flex;align-items:flex-start;gap:13px;white-space:nowrap;width:100%}
 .cinematic-nav-button>span{font-size:clamp(23px,2vw,42px);letter-spacing:-.045em;line-height:1.12}
 .version-navigation>.cinematic-nav-button>span{font-size:clamp(28px,2.5vw,54px)}
-.cinematic-nav-button svg,.toolbox-navigation svg{fill:none;stroke:currentColor;stroke-width:1;overflow:visible;flex-shrink:0}
+.cinematic-nav-button svg,.toolbox-navigation svg{display:block;fill:none;stroke:currentColor;stroke-width:1;overflow:visible;flex-shrink:0}
 .version-navigation{position:relative}
-.version-pinwheel{width:49px;height:107px}
+.version-pinwheel{width:49px;height:var(--nav-icon-height)}
 .pinwheel-rotor{transform-origin:36px 33px;animation:version-spin 2s linear infinite;animation-play-state:paused}
 .version-navigation:hover .pinwheel-rotor,.version-navigation:focus-within .pinwheel-rotor{animation-play-state:running}
 @keyframes version-spin{to{transform:rotate(360deg)}}
-.finder-navigation>.cinematic-nav-button svg{width:100px;height:100px}
+.finder-navigation>.cinematic-nav-button svg{width:var(--nav-icon-height);height:var(--nav-icon-height)}
 .cinematic-sublinks{display:flex;flex-direction:column;align-items:flex-start;gap:0;margin-top:-58px;margin-left:62px;font-size:clamp(12px,1.05vw,19px);line-height:1.28;color:#777}
-.finder-navigation .cinematic-sublinks{margin-left:113px;margin-top:-58px;white-space:nowrap}
+.finder-navigation .cinematic-sublinks{margin-left:calc(var(--nav-icon-height) + 13px);margin-top:-58px;white-space:nowrap}
 .cinematic-sublinks button[aria-current=page]{color:#ddd}
-.toolbox-navigation{justify-self:end;max-width:180px;display:flex;flex-direction:column;align-items:center}
-.toolbox-navigation svg{width:clamp(98px,11vw,170px);height:100px;max-width:100%}
+.toolbox-navigation{justify-self:end;align-self:start;max-width:180px;display:flex;flex-direction:column;align-items:center}
+.toolbox-navigation svg{width:clamp(98px,11vw,170px);height:var(--nav-icon-height);max-width:100%}
 .toolbox-navigation>span{display:none}
-.cinematic-header.is-compact{height:88px;padding-top:17px;background:linear-gradient(#000 88%,#0000)}
+.cinematic-header.is-compact{--nav-icon-height:49px;height:88px;padding-top:17px;background:linear-gradient(#000 88%,#0000)}
 .is-compact .cinematic-brand{font-size:22px}
 .is-compact .cinematic-nav-button>span{font-size:24px}
 .is-compact .version-navigation>.cinematic-nav-button>span{font-size:30px}
-.is-compact .version-pinwheel{height:52px;width:29px}
+.is-compact .version-pinwheel{width:29px}
 .is-compact .cinematic-sublinks{display:none}
-.is-compact .finder-navigation>.cinematic-nav-button svg{height:49px;width:49px}
-.is-compact .toolbox-navigation svg{height:49px;width:90px}
-.version-menu{position:absolute;top:112px;left:0;width:440px;max-width:calc(100vw - 36px);background:#111;border:1px solid #555;padding:20px;box-shadow:0 30px 80px #000b;z-index:1}
+.is-compact .toolbox-navigation svg{width:90px}
+.version-menu{position:absolute;top:calc(var(--nav-icon-height) + 12px);left:0;width:440px;max-width:calc(100vw - 36px);background:#111;border:1px solid #555;padding:20px;box-shadow:0 30px 80px #000b;z-index:1}
 .is-compact .version-menu{top:57px}
 .version-menu>button{display:flex;gap:16px;width:100%;padding:15px 0;border-bottom:1px solid #303030}
 .version-menu button small{font:10px ui-monospace,monospace;color:#777;padding-top:4px}
@@ -83,10 +82,10 @@ body.cinematic-ui{overflow-x:clip}
 .finder-destinations b{font-size:21px;font-weight:200}
 .finder-handbook{margin-top:28px}
 .finder-handbook summary{font-size:13px!important}
-@media(min-width:2000px){.cinematic-header{height:165px;padding-top:27px}.version-pinwheel{width:61px;height:122px}.cinematic-sublinks{margin-top:-68px;margin-left:74px}}
-@media(max-width:1150px){.cinematic-header,.cinematic-header.is-compact{padding-left:3vw;padding-right:3vw;grid-template-columns:22vw 35vw 25vw minmax(0,12vw)}.cinematic-brand{font-size:24px}.cinematic-nav-button>span{font-size:24px}.version-pinwheel{width:36px;height:93px}.cinematic-sublinks{margin-left:49px;margin-top:-60px;font-size:12px}.finder-navigation>.cinematic-nav-button svg{width:70px;height:80px}.finder-navigation .cinematic-sublinks{margin-left:82px;margin-top:-49px;font-size:10px}.toolbox-navigation svg{width:115px;height:80px}.cinematic-drawer{width:38vw}}
-@media(max-width:760px){.cinematic-header,.cinematic-header.is-compact{height:102px;grid-template-columns:minmax(0,1.2fr) minmax(0,1.45fr) 37px 55px;gap:12px;padding:20px 18px}.cinematic-brand,.is-compact .cinematic-brand{font-size:19px}.cinematic-nav-button>span,.is-compact .cinematic-nav-button>span{font-size:18px;white-space:normal}.version-pinwheel,.is-compact .version-pinwheel{height:44px;width:25px}.cinematic-nav-button{gap:7px}.cinematic-sublinks{display:none}.finder-navigation>.cinematic-nav-button svg,.is-compact .finder-navigation>.cinematic-nav-button svg{width:37px;height:37px}.finder-navigation .cinematic-nav-button>span{display:none}.toolbox-navigation svg,.is-compact .toolbox-navigation svg{height:37px;width:55px}.cinematic-drawer{width:min(100vw,460px);min-width:0}.drawer-heading,.drawer-content{padding-left:22px;padding-right:22px}.version-menu,.is-compact .version-menu{position:fixed;top:85px;left:18px;width:calc(100vw - 36px)}}
-@media(max-width:400px){.cinematic-header,.cinematic-header.is-compact{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) 30px 42px;gap:9px;padding-left:14px;padding-right:14px}.cinematic-brand,.is-compact .cinematic-brand{font-size:17px}.cinematic-nav-button>span,.is-compact .cinematic-nav-button>span{font-size:16px}.version-pinwheel,.is-compact .version-pinwheel{width:20px}.finder-navigation>.cinematic-nav-button svg,.is-compact .finder-navigation>.cinematic-nav-button svg{width:30px}.toolbox-navigation svg,.is-compact .toolbox-navigation svg{width:42px}}
+@media(min-width:2000px){.cinematic-header{--nav-icon-height:122px;height:165px;padding-top:27px}.version-pinwheel{width:61px}.cinematic-sublinks{margin-top:-68px;margin-left:74px}.finder-navigation .cinematic-sublinks{margin-top:-80px}}
+@media(max-width:1150px){.cinematic-header,.cinematic-header.is-compact{padding-left:3vw;padding-right:3vw;grid-template-columns:22vw 35vw 25vw minmax(0,12vw)}.cinematic-header{--nav-icon-height:80px}.cinematic-brand{font-size:24px}.cinematic-nav-button>span{font-size:24px}.version-pinwheel{width:36px}.cinematic-sublinks{margin-left:49px;margin-top:-60px;font-size:12px}.finder-navigation .cinematic-sublinks{margin-top:-49px;font-size:10px}.toolbox-navigation svg{width:115px}.cinematic-drawer{width:38vw}}
+@media(max-width:760px){.cinematic-header,.cinematic-header.is-compact{--nav-icon-height:37px;height:102px;grid-template-columns:minmax(0,1.2fr) minmax(0,1.45fr) 37px 55px;gap:12px;padding:20px 18px}.cinematic-brand,.is-compact .cinematic-brand{font-size:19px}.cinematic-nav-button>span,.is-compact .cinematic-nav-button>span{font-size:18px;white-space:normal}.version-pinwheel,.is-compact .version-pinwheel{width:25px}.cinematic-nav-button{gap:7px}.cinematic-sublinks{display:none}.finder-navigation .cinematic-nav-button>span{display:none}.toolbox-navigation svg,.is-compact .toolbox-navigation svg{width:55px}.cinematic-drawer{width:min(100vw,460px);min-width:0}.drawer-heading,.drawer-content{padding-left:22px;padding-right:22px}.version-menu,.is-compact .version-menu{position:fixed;top:85px;left:18px;width:calc(100vw - 36px)}}
+@media(max-width:400px){.cinematic-header,.cinematic-header.is-compact{--nav-icon-height:30px;grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) 30px 42px;gap:9px;padding-left:14px;padding-right:14px}.cinematic-brand,.is-compact .cinematic-brand{font-size:17px}.cinematic-nav-button>span,.is-compact .cinematic-nav-button>span{font-size:16px}.version-pinwheel,.is-compact .version-pinwheel{width:20px}.toolbox-navigation svg,.is-compact .toolbox-navigation svg{width:42px}}
 @media(max-width:1150px){.version-navigation>.cinematic-nav-button>span,.is-compact .version-navigation>.cinematic-nav-button>span{font-size:30px}}
 @media(max-width:760px){.version-navigation>.cinematic-nav-button>span,.is-compact .version-navigation>.cinematic-nav-button>span{font-size:21px}}
 @media(max-width:400px){.version-navigation>.cinematic-nav-button>span,.is-compact .version-navigation>.cinematic-nav-button>span{font-size:18px}}
