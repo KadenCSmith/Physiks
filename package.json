@@ -16,8 +16,8 @@
     "check:scaffold": "node scripts/check-scaffold.mjs",
     "check": "npm run typecheck && npm run lint && npm run check:scaffold && npm test && npm run build",
     "desktop:dev": "npm run build -- --base=./ && electron .",
-    "desktop:pack": "npm run build -- --base=./ && electron-builder --config electron-builder.config.cjs --dir --publish never",
-    "desktop:build": "npm run build -- --base=./ && electron-builder --config electron-builder.config.cjs --publish never"
+    "desktop:pack": "npm run build -- --base=./ && node scripts/stage-desktop.mjs && electron-builder --config electron-builder.config.cjs --dir --publish never",
+    "desktop:build": "npm run build -- --base=./ && node scripts/stage-desktop.mjs && electron-builder --config electron-builder.config.cjs --publish never"
   },
   "dependencies": {
     "katex": "0.18.2",

@@ -5,8 +5,10 @@ module.exports = {
   appId: identity.appId,
   productName: identity.productName,
   executableName: identity.executableName,
-  directories: { output: 'release' },
-  files: ['dist/**/*', 'desktop/**/*', 'package.json'],
+  directories: { app: 'release/staged-app', output: 'release' },
+  // The packager may search the parent project's dependencies even when the
+  // staged app has none. Keep this explicit exclusion as well as staging.
+  files: ['dist/**/*', 'desktop/**/*', 'package.json', 'THIRD_PARTY_NOTICES.txt', '!**/node_modules/**/*'],
   asar: true,
   npmRebuild: false,
   artifactName: '${name}-${version}-${os}-${arch}.${ext}',
