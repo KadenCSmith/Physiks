@@ -2,22 +2,12 @@ import { useId, useRef, useState } from 'react'
 import type { KeyboardEvent, PointerEvent } from 'react'
 import { defineSimulation } from '../framework/model'
 import { MathFormula } from '../framework/Math'
+import { useNumberFormat } from '../framework/formatting'
 import type { FormulaEntry, NumericParameters, SimulationLessonProps, SimulationSceneProps } from '../framework/types'
 import './examples.css'
 
 const TAU = 2 * Math.PI
 const defaults = { mass: 2, spring: 18, release: 0.2, initialVelocity: 0 }
-
-function n(value: number): string {
-  if (!Number.isFinite(value)) return '—'
-  if (Math.abs(value) < 1e-10) return '0'
-  return Number(value.toPrecision(4)).toString()
-}
-
-function tex(value: number): string {
-  const [coefficient, exponent] = n(value).split('e')
-  return exponent ? `${coefficient}\\times10^{${Number(exponent)}}` : coefficient
-}
 
 function rhythm(p: NumericParameters) {
   const omega = Math.sqrt(p.spring / p.mass)
@@ -54,6 +44,7 @@ function springPoints(start: number, end: number, y: number): string {
 }
 
 function OscillatorScene({ parameters: p, snapshot: s, display, onParameterChange, onInteractionStart, onInteractionEnd }: SimulationSceneProps) {
+  const { format: n } = useNumberFormat()
   const svgRef = useRef<SVGSVGElement>(null)
   const interaction = useRef(false)
   const capturedScale = useRef<number | null>(null)
@@ -127,6 +118,7 @@ function OscillatorScene({ parameters: p, snapshot: s, display, onParameterChang
 }
 
 function OscillatorLesson({ parameters: p, snapshot: s, time }: SimulationLessonProps) {
+  const { format: n } = useNumberFormat()
   return <section className="example-lesson" aria-label="Oscillator equations">
     <header><span className="example-eyebrow">THE EQUATION / t = {n(time)} s</span><h2>A restoring force.</h2></header>
     <div className="example-equation-card">
@@ -137,7 +129,20 @@ function OscillatorLesson({ parameters: p, snapshot: s, time }: SimulationLesson
         <div><span>Displacement · x</span><output>{n(s.x)} <small>m</small></output></div>
         <div><span>Acceleration · ẍ</span><output>{n(s.acceleration)} <small>m/s²</small></output></div>
       </div>
-      <MathFormula tex={String.raw`\underbrace{${tex(p.mass)}}_{m}\underbrace{(${tex(s.acceleration)})}_{\ddot x}+\underbrace{${tex(p.spring)}}_k\underbrace{(${tex(s.x)})}_x\approx0\;\mathrm N`} />
+      <div className="example-live-equation" aria-label="Live substituted equation of motion">
+        <span className="example-live-product">
+          <span className="example-substitution"><output>{n(p.mass)}</output><small>m</small></span>
+          <span>×</span>
+          <span className="example-substitution"><output>({n(s.acceleration)})</output><small>ẍ</small></span>
+        </span>
+        <span>+</span>
+        <span className="example-live-product">
+          <span className="example-substitution"><output>{n(p.spring)}</output><small>k</small></span>
+          <span>×</span>
+          <span className="example-substitution"><output>({n(s.x)})</output><small>x</small></span>
+        </span>
+        <span>≈ {n(0)} N</span>
+      </div>
       <p>The spring force points toward equilibrium. The signed inertia and stiffness terms cancel; displayed values are rounded.</p>
     </div>
     <div className="example-equation-card">

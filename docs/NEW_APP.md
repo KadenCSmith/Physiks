@@ -40,6 +40,16 @@ Run `npm run check:models` for targeted registry/model feedback, then `npm run c
 
 GitHub Pages is optional. Enable it with the README's Pages setting and `PUBLISH_PREVIEW` variable. The workflow follows the repository's actual name, so a new app does not retain the starter's deployment path. For another host, deploy the static `dist` directory using that host's Vite base-path requirements.
 
+## Package a desktop app
+
+The Tauri v2 wrapper displays the same React app through the operating system's webview. Keep models and teaching content in their existing modules; desktop packaging does not require another UI implementation.
+
+Install Rust 1.99.0 and the [native prerequisites](https://v2.tauri.app/start/prerequisites/) for your build machine. The locked npm dependencies provide Tauri CLI 2.12.1. Run `npm run desktop:dev` to build and open the local app, `npm run desktop:pack` to create a local application, and `npm run desktop:build` to create an installer in `release/`. Review `src-tauri/tauri.conf.json` for platform defaults and `src-tauri/src/main.rs` for window/navigation behavior.
+
+`scripts/desktop.mjs` reads identity through `desktop/identity.cjs` from generated `dist/app-metadata.json`. Change `src/app.config.ts` and `package.json`, then build again. Confirm branding, application identifier, version, icons, and saved-data isolation before release. Do not edit the generated metadata to rebrand a copy.
+
+Use a new matching `v<package version>` tag for the four-target release workflow. It produces Mac arm64 and Intel DMGs, a Windows x64 installer, and a Linux x64 AppImage. Mac users can consent to installation and optional installer cleanup on first launch, after macOS allows the app to start. The default build is ad-hoc signed and not notarized; your app needs its own Developer ID and notarization credentials for certificate-backed Mac distribution. See [DESKTOP.md](DESKTOP.md) for compatibility, signing secrets, testing, and publishing details. Only report downloads as available after checking the completed release and its assets.
+
 ## Prompt for future work
 
 > Build the app described in docs/APP_BRIEF.md using this template. Read AGENTS.md and docs/AI_START_HERE.md first. Preserve the existing shell, implement the required models under src/models, and register them in src/models.ts. Include their equations and underlying steps in Finder. Verify the actual domain behavior, run npm run check, and show a browser preview before publishing within my requested scope.

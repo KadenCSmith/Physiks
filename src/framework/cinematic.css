@@ -77,6 +77,8 @@ body.cinematic-ui{overflow-x:clip}
 .finder-values>button>span,.finder-destinations>button>span{flex:1;min-width:0;overflow-wrap:anywhere}
 .finder-values small,.finder-destinations small{display:block;font-size:10px;line-height:1.6;margin-top:4px;color:#999}
 .finder-values strong{font:11px ui-monospace,monospace;font-weight:400;text-align:right}
+.decimal-places-control{display:grid;grid-template-columns:1fr 70px;align-items:center;gap:8px 16px;margin:0 0 22px}
+.decimal-places-control>small{grid-column:1/-1;font-size:11px;line-height:1.6}
 .finder-values svg{flex-shrink:0}
 .finder-destinations b{font-size:21px;font-weight:200}
 .finder-handbook{margin-top:28px}

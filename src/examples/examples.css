@@ -32,6 +32,12 @@
 .example-factor-grid span{display:block;font-size:10px;color:#8c9693;line-height:1.5}
 .example-factor-grid output{display:block;margin-top:7px;font:14px ui-monospace,monospace;color:#c2ceca;overflow-wrap:anywhere}
 .example-factor-grid small{font-size:10px;color:#89938e}
+.example-live-equation{display:flex;flex-wrap:wrap;gap:5px 8px;padding:12px 0;font:12px/1.8 ui-monospace,monospace;color:#c2ceca}
+.example-live-equation>span{overflow-wrap:anywhere}
+.example-live-product{display:inline-flex;gap:7px;align-items:flex-start}
+.example-substitution{display:inline-grid;justify-items:center;line-height:1.5}
+.example-substitution output{font:inherit}
+.example-substitution small{font:10px/1.5 ui-monospace,monospace;color:#89938e}
 .example-metrics{display:grid;gap:12px;margin:17px 0 0}
 .example-metrics>div{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
 .example-metrics dt{font-size:11px;color:#8c9693}

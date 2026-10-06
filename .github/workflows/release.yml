@@ -42,15 +42,19 @@ jobs:
           - runner: macos-15
             os: mac
             arch: arm64
+            target: aarch64-apple-darwin
           - runner: macos-15-intel
             os: mac
             arch: x64
+            target: x86_64-apple-darwin
           - runner: windows-2022
             os: win
             arch: x64
+            target: x86_64-pc-windows-msvc
           - runner: ubuntu-22.04
             os: linux
             arch: x64
+            target: x86_64-unknown-linux-gnu
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@v6
@@ -61,10 +65,34 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Install Linux webview build dependencies
+        if: matrix.os == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev patchelf xdg-utils build-essential curl wget file libxdo-dev libssl-dev
+      - name: Set up locked Rust toolchain
+        run: rustup show
+      - name: Test native launch and installer logic
+        run: npm run desktop:test
+      - name: Check Apple signing configuration
+        if: matrix.os == 'mac'
+        env:
+          APPLE_CERTIFICATE: ${{ secrets.APPLE_CERTIFICATE }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_CERTIFICATE_PASSWORD }}
+          APPLE_SIGNING_IDENTITY: ${{ secrets.APPLE_SIGNING_IDENTITY }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_PASSWORD: ${{ secrets.APPLE_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+        run: node scripts/check-signing.mjs
       - name: Build installer
         env:
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
-        run: npm run desktop:build -- --${{ matrix.os }} --${{ matrix.arch }}
+          APPLE_CERTIFICATE: ${{ matrix.os == 'mac' && secrets.APPLE_CERTIFICATE || '' }}
+          APPLE_CERTIFICATE_PASSWORD: ${{ matrix.os == 'mac' && secrets.APPLE_CERTIFICATE_PASSWORD || '' }}
+          APPLE_SIGNING_IDENTITY: ${{ matrix.os == 'mac' && secrets.APPLE_SIGNING_IDENTITY || '' }}
+          APPLE_ID: ${{ matrix.os == 'mac' && secrets.APPLE_ID || '' }}
+          APPLE_PASSWORD: ${{ matrix.os == 'mac' && secrets.APPLE_PASSWORD || '' }}
+          APPLE_TEAM_ID: ${{ matrix.os == 'mac' && secrets.APPLE_TEAM_ID || '' }}
+        run: npm run desktop:build -- --target ${{ matrix.target }}
       - uses: actions/upload-artifact@v7
         with:
           name: installer-${{ matrix.os }}-${{ matrix.arch }}

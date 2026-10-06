@@ -38,6 +38,32 @@ export function advancePlayback(time: number, delta: number, speed: number, dura
   return remainder >= end - phase ? remainder - (end - phase) : phase + remainder
 }
 
+/** One publication per display frame, using elapsed time rather than a fixed FPS.
+ * The injectable scheduler also lets tests exercise real frame boundaries.
+ */
+export function schedulePlaybackFrames({ time, duration, speed, loop, onFrame, now, request, cancel }: {
+  time: { current: number }; duration: number; speed: number; loop: boolean
+  onFrame: (time: number) => void
+  now: () => number
+  request: (callback: FrameRequestCallback) => number
+  cancel: (handle: number) => void
+}): () => void {
+  let handle = 0
+  let previous = now()
+  let active = true
+  const frame = (timestamp: number) => {
+    if (!active) return
+    const delta = (timestamp - previous) / 1000
+    previous = timestamp
+    time.current = advancePlayback(time.current, delta, speed, duration, loop)
+    onFrame(time.current)
+    if (!loop && time.current >= duration) { active = false; return }
+    handle = request(frame)
+  }
+  handle = request(frame)
+  return () => { active = false; cancel(handle) }
+}
+
 /** Playback state is independent from physical parameters; reset and seek preserve pause intent. */
 export function usePlayback(duration: number, {
   loop, temporarilyPaused = false, disabled = false, defaultSpeed,
@@ -79,25 +105,10 @@ export function usePlayback(duration: number, {
   useEffect(() => {
     if (!playing || temporarilyPaused || disabled || end === 0 || !visible || ended
       || typeof requestAnimationFrame === 'undefined' || typeof cancelAnimationFrame === 'undefined') return
-    let handle = 0
-    let previous = performance.now()
-    let lastPaint = previous
-    const frame = (now: number) => {
-      const delta = (now - previous) / 1000
-      previous = now
-      timeRef.current = advancePlayback(timeRef.current, delta, speed, end, loop)
-      if (!loop && timeRef.current >= end) {
-        setTime(end)
-        return
-      }
-      if (now - lastPaint >= 1000 / 30) {
-        setTime(timeRef.current)
-        lastPaint = now
-      }
-      handle = requestAnimationFrame(frame)
-    }
-    handle = requestAnimationFrame(frame)
-    return () => cancelAnimationFrame(handle)
+    return schedulePlaybackFrames({
+      time: timeRef, duration: end, speed, loop, onFrame: setTime,
+      now: () => performance.now(), request: callback => requestAnimationFrame(callback), cancel: handle => cancelAnimationFrame(handle),
+    })
   }, [playing, speed, end, loop, temporarilyPaused, disabled, visible, ended])
 
   return { time: boundedTime, playing, speed, ended, setPlaying, setSpeed, seek, reset }

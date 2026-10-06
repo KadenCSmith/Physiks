@@ -36,16 +36,18 @@ See [the new-app guide](docs/NEW_APP.md) for a full checklist and [the architect
 
 - Configurable branding and a registry-driven Simulation dropdown.
 - Toolbox with labeled sliders, numeric entries, units, validation, and reset.
+- Saved display precision in Toolbox: up to three decimal places by default, adjustable from 0–6, without trailing zeros. Editable physical values and calculations retain full precision.
 - Finder with model navigation, guides, live control values, grouped equations, and search across all models.
 - Safe KaTeX math with semantic MathML, and a learning panel supplied by each model.
 - Shared time-series plots with model-selected quantities and click-to-seek.
 - Quarter-speed autoplay, explicit Pause, replay, scrubbing, and hidden-tab suspension. Edits and model switches preserve the user's playback choice.
+- Animation follows display frames; graph curves and static formulas are reused between frames.
 - Separate saved values for each model, isolated under the configured app ID. Stale or invalid saved values fall back to safe defaults.
 - Periodic and nonperiodic playback. A finite observation window stops at its endpoint instead of jumping back to the start.
 - Responsive layout, keyboard controls, labeled inputs, visible focus, and drawer focus management.
 - Automated checks and optional GitHub Pages deployment that adapts to the new repository's name.
 - AI instructions, an app brief, a safe model generator, and model contract checks with actionable diagnostics.
-- An Electron desktop wrapper and automatic GitHub release downloads for Apple Silicon Mac, Intel Mac, Windows x64, and Linux x64.
+- A small Tauri v2 desktop wrapper using each operating system's webview, plus automatic GitHub release downloads for Apple Silicon Mac, Intel Mac, Windows x64, and Linux x64. The full React interface is shared with the browser; the installer does not carry a separate Chromium runtime.
 
 Keyboard: **1–9** select registered models, **Space** toggles playback, **R** restarts, and **Escape** closes a drawer or menu. Shortcuts yield to inputs and other interactive controls.
 
@@ -85,7 +87,13 @@ The workflow builds under `/<your-repository-name>/`. It never deploys pull requ
 | Windows with Intel/AMD 64-bit processor | `win-x64.exe` |
 | Linux with Intel/AMD 64-bit processor | `linux-x86_64.AppImage` |
 
-Filenames include the app name and version. Each release includes SHA-256 checksums. Mac builds are ad-hoc signed, not Developer ID signed or notarized; Windows builds are not certificate signed, so operating systems may require a trust decision before opening them.
+Filenames include the app name and version. Each release includes SHA-256 checksums. Version 0.3.0 uses Tauri v2; macOS requires version 12 or later. Windows uses WebView2 and the installer downloads its runtime if needed. Linux packages use WebKitGTK 4.1 and are built on Ubuntu 22.04; compatibility still depends on the distribution.
+
+On a Mac, open the DMG, then open the app inside it. After macOS allows it to start, the app offers to copy itself to Applications and launch the installed copy. It then offers to eject the mounted installer and move the original DMG to the recoverable Trash. Mounting a DMG alone cannot install or open an app.
+
+The default Mac build is **ad-hoc signed, not Developer ID signed or notarized**. If macOS blocks an app you trust, first try opening it, then use **System Settings → Privacy & Security → Open Anyway**, as described in [Apple's guide](https://support.apple.com/en-us/102445). The install helper cannot approve that decision for you. Windows builds are not certificate signed. Certificate-backed Mac signing and notarization require owner-supplied repository secrets; none are included in the template.
+
+For local desktop development, install Rust **1.99.0** and the [native build prerequisites](https://v2.tauri.app/start/prerequisites/), then run `npm run desktop:dev`. This builds and opens the bundled app. `npm run desktop:pack` creates a local application; `npm run desktop:build` creates the current platform's installer in `release/`. The locked Tauri CLI is **2.12.1**.
 
 For a future app, edit its branding and package name/version, then push a matching `v<version>` tag. **Build desktop downloads** checks the source, builds on four native runners, and publishes the complete installer set. [The desktop guide](docs/DESKTOP.md) covers local preview, packaging, identity, and signing. The browser preview remains available.
 

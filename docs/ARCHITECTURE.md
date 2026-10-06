@@ -16,11 +16,17 @@ The app separates reusable interface behavior from each model's calculations and
 | `src/framework/TimeSeriesChart.tsx` | Quantity selection, plotting, and time seeking |
 | `src/framework/ParameterControl.tsx` | Slider and numeric entry for a declared control |
 | `src/framework/Math.tsx` | Safe mathematical rendering with accessible MathML |
+| `src/framework/formatting.tsx` | Per-app display precision, shared number formatting, and Toolbox control |
 | `src/framework/styles.css`, `cinematic.css` | Shared typography, layout, color, and responsive shell |
 | `src/examples` | Replaceable examples, their scenes, learning panels, formulas, and local styling |
 | `src/models/<id>` | App-specific models generated as small separate calculation, scene, lesson, formula, definition, and style files |
 | `scripts/new-model.mjs`, `scripts/templates/model` | Dependency-free scaffold generator and editable source templates |
 | `AGENTS.md`, `docs/AI_START_HERE.md`, `docs/APP_BRIEF.md` | AI workflow, edit boundaries, and app requirements |
+| `src-tauri/src/main.rs` | Native Tauri window, single-instance behavior, and navigation boundaries |
+| `src-tauri/src/install.rs` | macOS first-launch installation, relaunch, and optional recoverable installer cleanup |
+| `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` | Native bundle defaults, permissions, and Rust dependencies |
+| `desktop/identity.cjs`, `desktop/build-config.mjs`, `scripts/desktop.mjs` | Metadata-derived desktop identity, native build configuration/orchestration, and normalized release files |
+| `.github/workflows/release.yml` | Four-target build, optional owner-configured signing, and complete release publication |
 
 ## Model contract
 
@@ -45,6 +51,20 @@ Physical values are separate from display options and viewing speed. The clock s
 Pause is a user choice. Editing a value, restoring defaults, switching models, or seeking resets/selects time without silently changing that choice. Hidden tabs suspend rendering and continue when visible. Dragging temporarily suspends the clock. At a nonrepeating endpoint, the view holds; Replay explicitly starts it again.
 
 Parameters are stored under `<appConfig.id>:parameters:v1`, with a separate record per model. Give each new app a unique ID. Restoration ignores unknown models and keys, defaults invalid/nonfinite values, and clamps finite values to declared bounds without rounding them. Unavailable storage does not prevent the app from working.
+
+Displayed numbers use `useNumberFormat().format(value)`. Toolbox selects a maximum of 0–6 decimal places, defaulting to three without padding trailing zeros, saved separately under `<appConfig.id>:display:v1`. This rounds text only; numeric controls, model sampling, and scene geometry retain the underlying values. Generated scenes and lessons use this shared formatter. Never feed formatted text back into the model.
+
+The clock publishes once per animation frame using elapsed time. Graph sampling and curve geometry depend on model parameters and duration, not the moving cursor. Navigation, hidden drawer contents, and symbolic math retain their rendered trees across time changes. Live numeric substitutions use labeled React text beside static symbolic equations so KaTeX does not rebuild on every frame.
+
+## Browser and desktop
+
+Vite builds the same React code for both destinations. Tauri v2 embeds the built frontend and uses WKWebView on macOS, WebView2 on Windows, and WebKitGTK on Linux. It does not bundle Chromium or a Node.js runtime. Domain calculations, scenes, lessons, Finder, Toolbox, plots, and playback remain in the shared frontend. Native code provides window management, constrained external-link opening, and the Mac install flow. Test interaction and rendering in the actual native webview as well as the browser.
+
+The generated `dist/app-metadata.json` carries the configured app identity and package version. `desktop/identity.cjs` normalizes the installer identity, and `scripts/desktop.mjs` derives Tauri overrides and publishes local build outputs into `release/`. Keep this single branding path when making a new app.
+
+Browser and desktop storage have separate origins. The Tauri desktop origin also differs from the Electron wrapper used in version 0.2; that version's saved local settings are not automatically migrated. The new app starts with its defaults and then persists its own settings normally.
+
+The Mac installation helper is native code, not a webpage permission. It runs after macOS permits launch, requests installation consent, copies the app with `ditto`, and relaunches the installed copy. Optional installer cleanup uses the recoverable Trash and ejects the mounted image. It does not grant Gatekeeper approval or disable operating-system security. See [DESKTOP.md](DESKTOP.md) for signing and platform details.
 
 ## Extending the starter
 

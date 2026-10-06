@@ -55,7 +55,7 @@ export function AppChrome({ config, models, activeId, onModel, onResetView }: Ap
     const frame = requestAnimationFrame(() => {
       const buttons = Array.from(menuRef.current?.querySelectorAll<HTMLButtonElement>('[role="menuitemradio"]') ?? [])
       const selected = buttons.find(button => button.dataset.modelId === activeId)
-      const target = focusIntent.current === 'last' ? buttons.at(-1)
+      const target = focusIntent.current === 'last' ? buttons[buttons.length - 1]
         : focusIntent.current === 'first' ? buttons[0] : selected ?? buttons[0]
       target?.focus({ preventScroll: true })
     })

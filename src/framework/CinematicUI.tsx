@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useId, useRef, useSt
 import { createPortal } from 'react-dom'
 import { ArrowUpRight, Search, X } from 'lucide-react'
 import type { AppConfig } from './types'
+import { DecimalPlacesControl, NumberFormatProvider, useNumberFormat } from './formatting'
 
 export type CinematicPanel = 'finder' | 'toolbox' | null
 type Slot = 'tools' | 'extras' | 'guides' | 'docs'
@@ -47,6 +48,7 @@ type Variable = {
 
 function CurrentValues({ source }: { source: HTMLElement | null }) {
   const { open, query } = useCinematicUI()
+  const { format } = useNumberFormat()
   const [items, setItems] = useState<Variable[]>([])
   const focusTimer = useRef<number | undefined>(undefined)
 
@@ -61,7 +63,8 @@ function CurrentValues({ source }: { source: HTMLElement | null }) {
         || element.labels?.[0]?.textContent || parent?.querySelector('label')?.textContent || 'Setting'
       const raw = element instanceof HTMLSelectElement
         ? element.selectedOptions[0]?.textContent ?? element.value
-        : element.type === 'checkbox' ? element.checked ? 'On' : 'Off' : element.value
+        : element.type === 'checkbox' ? element.checked ? 'On' : 'Off'
+          : element.type === 'number' && element.value.trim() && Number.isFinite(Number(element.value)) ? format(Number(element.value)) : element.value
       const unit = element.getAttribute('data-unit') ?? parent?.querySelector('.control-unit')?.textContent ?? ''
       return {
         element,
@@ -83,7 +86,7 @@ function CurrentValues({ source }: { source: HTMLElement | null }) {
       source.removeEventListener('change', read)
       source.removeEventListener('input', read)
     }
-  }, [source])
+  }, [source, format])
   useEffect(() => () => clearTimeout(focusTimer.current), [])
 
   const words = query.toLowerCase().trim().split(/\s+/).filter(Boolean)
@@ -163,7 +166,7 @@ export function CinematicUIProvider({ children, config }: { children: ReactNode;
         'button,input,select,textarea,summary,a[href],[tabindex="0"]',
       ) ?? []).filter(element => !element.closest('[hidden],[inert]') && element.getClientRects().length
         && !(element as HTMLButtonElement).disabled)
-      const first = elements[0], last = elements.at(-1)
+      const first = elements[0], last = elements[elements.length - 1]
       if (!first) { event.preventDefault(); drawer.current?.focus(); return }
       if (!drawer.current?.contains(document.activeElement)) { event.preventDefault(); first.focus() }
       else if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus() }
@@ -178,7 +181,7 @@ export function CinematicUIProvider({ children, config }: { children: ReactNode;
     }
   }, [panel, open])
 
-  return <Context.Provider value={{ config, panel, open, query, finderTab, setFinderTab, slots }}>
+  return <NumberFormatProvider key={config.id} appId={config.id}><Context.Provider value={{ config, panel, open, query, finderTab, setFinderTab, slots }}>
     <div ref={appContent} className="cinematic-app-content" inert={!!panel}>{children}</div>
     {panel && <button type="button" className="cinematic-backdrop" aria-label="Close side panel" tabIndex={-1} onClick={() => open(null)} />}
     <aside ref={drawer} tabIndex={-1} className={`cinematic-drawer ${panel ? 'is-open' : ''}`}
@@ -205,8 +208,9 @@ export function CinematicUIProvider({ children, config }: { children: ReactNode;
         <p className="drawer-intro">Adjust the current model. Each value uses the units shown beside its control.</p>
         <div ref={toolsRef} />
         <div className="drawer-section-label drawer-extras-heading">MORE TOOLS</div>
+        <DecimalPlacesControl />
         <div ref={extrasRef} />
       </div>
     </aside>
-  </Context.Provider>
+  </Context.Provider></NumberFormatProvider>
 }

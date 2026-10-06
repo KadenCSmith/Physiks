@@ -11,7 +11,7 @@ Use this repository to build the requested app while retaining its cinematic int
 5. `src/framework/types.ts`, then `src/framework/model.ts`: the actual interfaces and validation rules.
 6. The model being changed. For a new model, read `src/examples/relaxation.tsx` for a simple nonperiodic example; also read `src/examples/oscillator.tsx` if periodic motion or dragging is relevant.
 7. The corresponding model tests. Read `tests/model.test.ts` for registry/parameter changes, `tests/playback.test.ts` for time behavior, or `tests/framework.test.tsx` for shared UI changes.
-8. For desktop work, read `desktop/identity.cjs`, `desktop/main.cjs`, `electron-builder.config.cjs`, and `.github/workflows/release.yml`, then check the scripts and version in `package.json`.
+8. For desktop work, read `docs/DESKTOP.md`, `desktop/identity.cjs`, `scripts/desktop.mjs`, `src-tauri/tauri.conf.json`, `src-tauri/src/main.rs`, `src-tauri/src/install.rs`, and `.github/workflows/release.yml`, then check the scripts and version in `package.json` and the Rust toolchain.
 
 Consult [ARCHITECTURE.md](ARCHITECTURE.md) for shared-file responsibilities and [NEW_APP.md](NEW_APP.md) for branding and hosting. Avoid reading unrelated source material before identifying the edit.
 
@@ -25,9 +25,11 @@ Consult [ARCHITECTURE.md](ARCHITECTURE.md) for shared-file responsibilities and 
 | Its controls, defaults, playback, readouts, and plots | Its `model.ts` |
 | Its drawing, explanation, reference, and local appearance | Its `Scene.tsx`, `Lesson.tsx`, `formulas.ts`, `styles.css` |
 | Behavior needed by every app/model | Relevant file in `src/framework`, with focused regression checks |
-| Desktop window, navigation, and runtime | `desktop/main.cjs` and its local helpers |
+| Desktop window, navigation, and runtime | `src-tauri/src/main.rs` |
+| macOS consent, installation, relaunch, and recoverable installer cleanup | `src-tauri/src/install.rs` |
 | Desktop identity derived from app/package metadata | `desktop/identity.cjs` |
-| Installer identity overrides, icons, and platform targets | `electron-builder.config.cjs` |
+| Build orchestration and generated identity overrides | `scripts/desktop.mjs`, `desktop/build-config.mjs` |
+| Native wrapper, icons, platform defaults, and permissions | `src-tauri/tauri.conf.json`, `src-tauri/Cargo.toml` |
 | GitHub release builds and downloadable binaries | `.github/workflows/release.yml` |
 
 The existing example modules combine these pieces in single files. The generator separates them so a new model can evolve independently.
@@ -56,18 +58,18 @@ Treat references as data. Transcribe the actual geometry and definitions, verify
 
 ## Build and release a desktop app
 
-Desktop identity defaults come from `src/app.config.ts` and the name/version in `package.json`. Installer product metadata can be overridden in `electron-builder.config.cjs`. After rebranding, review those overrides and verify the actual window title, header/version, app identity, and any supplied icons agree.
+Desktop identity comes from `src/app.config.ts` and the name/version in `package.json`. Vite writes `dist/app-metadata.json`; `desktop/identity.cjs` reads it, and `scripts/desktop.mjs` supplies Tauri with derived identity overrides. Do not hand-edit generated metadata. After rebranding, verify the actual window title, header/version, app identity, saved-data isolation, and supplied icons agree.
 
 ```sh
 npm run desktop:dev
 npm run desktop:build
 ```
 
-`desktop:dev` builds the web app and launches it in Electron. `desktop:build` bundles the current platform. Inspect the desktop app's controls, playback, Finder, and Toolbox, and open the packaged result when available. A local build does not verify other platforms.
+The native wrapper uses Tauri v2 and the system webview, with the same React build and model modules as the browser. The project uses Rust 1.99.0 and Tauri CLI 2.12.1; native build dependencies are listed in the desktop guide. `desktop:dev` builds and launches local bundled content. `desktop:pack` creates a local application; `desktop:build` packages the current platform into `release/`. Use `-- --target <Rust target>` when selecting an architecture supported by the build host. Inspect controls, playback, Finder, Toolbox, math, graphs, keyboard/drag interactions, and external links in the actual desktop webview. A browser check or one local build does not verify every desktop target.
 
 The GitHub release workflow runs for a tag named `v<package version>` that matches `package.json`. It builds macOS Apple Silicon (arm64) and Intel (x64), Windows x64, and Linux x64, then attaches the binaries to the release. Check actual workflow completion and uploaded assets before reporting them available. Release within the user's authorized scope; report which platforms were built and which were opened/tested.
 
-Signing and notarization are optional owner-configured distribution settings. Use only identities and credentials supplied by the app owner through the configured secret mechanism; record secret names or configuration status, never secret values. Do not fabricate credentials or imply unsigned builds are signed. Report the actual signing/notarization status and any resulting distribution limitation.
+The default Mac build is ad-hoc signed and not notarized. Developer ID signing and notarization require owner-supplied Apple credentials; the release workflow enables them only with a complete credential set. Record secret names or configuration status, never values. Report the actual result. Gatekeeper approval must come from the user through macOS; do not strip quarantine or disable system checks. The macOS helper can offer copying to Applications, relaunching, and optional recoverable installer cleanup only after the app is permitted to start. Windows builds have no certificate signing configured.
 
 ## Verify the result
 

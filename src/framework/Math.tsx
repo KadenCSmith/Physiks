@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import katex from 'katex';
 import 'katex/dist/katex.min.css';
 
@@ -9,7 +9,7 @@ export type MathFormulaProps = {
 };
 
 /** KaTeX emits both visual HTML and semantic MathML for assistive technology. */
-export function MathFormula({ tex, inline = false, className = '' }: MathFormulaProps) {
+export const MathFormula = memo(function MathFormula({ tex, inline = false, className = '' }: MathFormulaProps) {
   const markup = useMemo(() => katex.renderToString(tex, {
     displayMode: !inline,
     output: 'htmlAndMathml',
@@ -23,6 +23,6 @@ export function MathFormula({ tex, inline = false, className = '' }: MathFormula
   }
 
   return <div className={`math-block ${className}`} dangerouslySetInnerHTML={{ __html: markup }} />;
-}
+});
 
 export default MathFormula;
