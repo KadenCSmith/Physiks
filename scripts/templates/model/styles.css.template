@@ -1,0 +1,5 @@
+.__MODEL_ID__-scene text{fill:#aaa;font:13px ui-monospace,monospace}
+.__MODEL_ID__-values{display:grid;gap:12px;margin:20px 0}
+.__MODEL_ID__-values>div{display:flex;justify-content:space-between;gap:12px;font-size:11px}
+.__MODEL_ID__-values dt{color:#888}
+.__MODEL_ID__-values dd{margin:0;font:12px ui-monospace,monospace;color:#ccc}

@@ -1,0 +1,20 @@
+import { useId } from 'react'
+import type { SimulationSceneProps } from '../../framework/types'
+
+export function Scene({ parameters, snapshot, display }: SimulationSceneProps) {
+  const titleId = useId()
+  const maxMagnitude = Math.max(1, Math.abs(parameters.initial), Math.abs(parameters.initial + parameters.rate * parameters.window))
+  const x = 380 + snapshot.value / maxMagnitude * 290
+  return <svg className="simulation-scene __MODEL_ID__-scene" viewBox="0 0 760 300" role="img" aria-labelledby={titleId}>
+    <title id={titleId}>A changing value on a number line: {snapshot.value.toFixed(3)}</title>
+    <line x1="90" x2="670" y1="150" y2="150" stroke="#555" />
+    <line x1="380" x2="380" y1="120" y2="180" stroke="#888" />
+    <circle cx={x} cy="150" r="10" fill="var(--position)" />
+    {display.labels && <>
+      <text x="380" y="205" textAnchor="middle">0</text>
+      <text x="380" y="75" textAnchor="middle">y = {snapshot.value.toFixed(3)}</text>
+      <text x="90" y="205">−{maxMagnitude.toFixed(1)}</text>
+      <text x="670" y="205" textAnchor="end">+{maxMagnitude.toFixed(1)}</text>
+    </>}
+  </svg>
+}

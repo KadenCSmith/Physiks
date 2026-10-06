@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Play, Pause, RotateCcw, SlidersHorizontal } from 'lucide-react'
 import { appConfig } from './app.config'
 import { models } from './models'
-import { createSessions, resolveModelId, sanitizeParameters, validateRegistry } from './framework/model'
+import { createSessions, resolveModelId, sanitizeParameters, validateAppConfig } from './framework/model'
 import { usePlayback } from './framework/usePlayback'
 import { AppChrome } from './framework/AppChrome'
 import { CinematicUIProvider, FinderPortal, ToolboxPortal, useCinematicUI } from './framework/CinematicUI'
@@ -10,7 +10,7 @@ import { ParameterControl } from './framework/ParameterControl'
 import { FormulaLibrary } from './framework/FormulaLibrary'
 import { TimeSeriesChart } from './framework/TimeSeriesChart'
 
-validateRegistry(models)
+validateAppConfig(appConfig, models)
 const storageKey = `${appConfig.id}:parameters:v1`
 function readSessions() {
   try { return createSessions(models, JSON.parse(localStorage.getItem(storageKey) ?? 'null')) }

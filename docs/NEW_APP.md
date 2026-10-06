@@ -1,5 +1,7 @@
 # Build a new app from the template
 
+Start with [the AI guide](AI_START_HERE.md) and fill in [the app brief](APP_BRIEF.md) when working with a coding agent.
+
 ## Copy and brand it
 
 Use GitHub's **Use this template** button to create your own repository. This gives the new app its own history rather than adding another app to the source projects.
@@ -18,7 +20,9 @@ Update the package name and README for the new repository. Set its homepage to i
 
 ## Add a model
 
-Copy one example into a new folder under `src`, rename its exported definition, and give it a unique model ID. Keep equations and state sampling in pure functions, separated from the scene's pointer and drawing code.
+Run `npm run new:model -- wave-lab "Wave lab"` with your own unique lowercase kebab ID. It creates a module under `src/models/<id>` and a test, and prints the exact import and registration changes for `src/models.ts`. It never overwrites an existing model. Use `--dry-run` to inspect planned files. The generated linear response is a working illustrative baseline, not an implementation of your requested domain.
+
+Replace `calculation.ts` with your equations and sampling, `model.ts` with matching controls/readouts/playback/plots, `Scene.tsx` with the visualization, `Lesson.tsx` with labeled live equations, and `formulas.ts` with grouped references and underlying steps. Keep local visual styling in `styles.css`. Update the generated test to check meaningful domain behavior. Keep equations and sampling pure, separated from pointer and drawing code.
 
 Declare every numeric parameter in both `defaults` and `controls`. Test the initial condition, expected response, units, meaningful limits, and any conserved quantity. Return finite snapshots for the full duration selected by `getPlayback`.
 
@@ -32,10 +36,10 @@ Finally, import the definition in `src/models.ts` and add it to the array. Menus
 
 ## Verify and publish
 
-Run the four checks in the README. Inspect the app at desktop and narrow widths, switch between models, edit controls, open/search Finder, pause and resume, scrub, and hide/show the tab. Check that the scene and formulas agree at the same time.
+Run `npm run check:models` for targeted registry/model feedback, then `npm run check` for typechecking, lint, a generated scaffold check, all tests, and production build. Contract checks evaluate defaults, each individual control boundary, and start/middle/end times; they check numeric consistency and valid formulas, not the scientific correctness of a model. Add your own equation and conservation checks. Inspect the app at desktop and narrow widths, switch between models, edit controls, open/search Finder, pause and resume, scrub, and hide/show the tab. Check that the scene and formulas agree at the same time.
 
 GitHub Pages is optional. Enable it with the README's Pages setting and `PUBLISH_PREVIEW` variable. The workflow follows the repository's actual name, so a new app does not retain the starter's deployment path. For another host, deploy the static `dist` directory using that host's Vite base-path requirements.
 
 ## Prompt for future work
 
-> Build this app using the Cinematic App Framework in this repository. Keep the existing header, Finder, Toolbox, playback, and responsive layout. Change the branding in app.config.ts, implement the new models as SimulationDefinition modules, register them in models.ts, and include their formulas and explanatory steps in Finder. Preserve explicit Pause intent, keep calculations independent of frame rate, verify the result, and start with a browser preview.
+> Build the app described in docs/APP_BRIEF.md using this template. Read AGENTS.md and docs/AI_START_HERE.md first. Preserve the existing shell, implement the required models under src/models, and register them in src/models.ts. Include their equations and underlying steps in Finder. Verify the actual domain behavior, run npm run check, and show a browser preview before publishing within my requested scope.

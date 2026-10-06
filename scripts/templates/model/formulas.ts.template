@@ -1,0 +1,18 @@
+import type { FormulaEntry } from '../../framework/types'
+
+// Replace these entries along with calculation.ts; cite actual references when supplied.
+export const formulas: FormulaEntry[] = [
+  {
+    id: '__MODEL_ID__-response', group: 'Value and rate', title: 'Constant rate response',
+    description: 'Integrating a constant rate gives a linear response from the initial value.',
+    tex: [String.raw`\frac{dy}{dt}=r`, String.raw`y(t)=y_0+rt`],
+    usage: 'A finite nonperiodic example; it does not reset at the observation endpoint.',
+    sources: ['Original illustrative linear response; derived by integrating a constant rate.'],
+  },
+  {
+    id: '__MODEL_ID__-derivative', group: 'Underlying steps', title: 'Differentiate the response',
+    description: 'The initial value is constant and the derivative of time is one.',
+    tex: [String.raw`\frac{d}{dt}(y_0+rt)=0+r\frac{dt}{dt}=r`],
+    usage: 'An independent check that the response satisfies the constant rate equation.',
+  },
+]

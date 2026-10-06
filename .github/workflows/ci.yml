@@ -17,13 +17,14 @@ jobs:
       pages: read
     steps:
       - uses: actions/checkout@v6
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run typecheck
       - run: npm run lint
+      - run: npm run check:scaffold
       - run: npm test
       - uses: actions/configure-pages@v5
         if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request' && vars.PUBLISH_PREVIEW == 'true'

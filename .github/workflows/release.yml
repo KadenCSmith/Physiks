@@ -1,0 +1,112 @@
+name: Build desktop downloads
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Existing version tag, matching package.json (for example v0.2.0)'
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: desktop-release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.version.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.tag || github.ref }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Match release tag to app version
+        id: version
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: node -e "const fs=require('node:fs');const p=require('./package.json');if(process.env.RELEASE_TAG !== 'v'+p.version)throw new Error('Tag must match package.json version');fs.appendFileSync(process.env.GITHUB_OUTPUT,'tag='+process.env.RELEASE_TAG+'\n')"
+      - run: npm run check
+  build:
+    needs: verify
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15
+            os: mac
+            arch: arm64
+          - runner: macos-15-intel
+            os: mac
+            arch: x64
+          - runner: windows-2022
+            os: win
+            arch: x64
+          - runner: ubuntu-22.04
+            os: linux
+            arch: x64
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.verify.outputs.tag }}
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Build installer
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: npm run desktop:build -- --${{ matrix.os }} --${{ matrix.arch }}
+      - uses: actions/upload-artifact@v7
+        with:
+          name: installer-${{ matrix.os }}-${{ matrix.arch }}
+          if-no-files-found: error
+          path: |
+            release/*.dmg
+            release/*.exe
+            release/*.AppImage
+  publish:
+    needs: [verify, build]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ needs.verify.outputs.tag }}
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: installer-*
+          merge-multiple: true
+          path: release
+      - name: Check download set and create checksums
+        working-directory: release
+        run: |
+          test "$(find . -maxdepth 1 -name '*.dmg' | wc -l)" -eq 2
+          test "$(find . -maxdepth 1 -name '*.exe' | wc -l)" -eq 1
+          test "$(find . -maxdepth 1 -name '*.AppImage' | wc -l)" -eq 1
+          sha256sum *.dmg *.exe *.AppImage > SHA256SUMS.txt
+      - name: Publish complete GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ needs.verify.outputs.tag }}
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            if test "$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)" != true; then
+              echo 'This release is already public. Use a new version for updated downloads.'
+              exit 1
+            fi
+            echo 'Completing the unpublished draft for this tag.'
+          else
+            gh release create "$RELEASE_TAG" --verify-tag --draft --title "$(node -p "require('./package.json').name") $RELEASE_TAG" --notes-file .github/release-notes.md
+          fi
+          gh release upload "$RELEASE_TAG" release/*.dmg release/*.exe release/*.AppImage release/SHA256SUMS.txt --clobber
+          gh release edit "$RELEASE_TAG" --draft=false --latest

@@ -1,0 +1,20 @@
+import { MathFormula } from '../../framework/Math'
+import type { SimulationLessonProps } from '../../framework/types'
+
+export function Lesson({ parameters, snapshot, time }: SimulationLessonProps) {
+  return <section className="equation-panel" aria-label="Linear response equations">
+    <header className="equation-panel-heading"><div><span className="eyebrow">THE EQUATION / t = {time.toFixed(3)} s</span><h2>Value and rate.</h2></div></header>
+    <div className="equation-card">
+      <MathFormula tex={String.raw`y(t)=y_0+rt,\qquad\frac{dy}{dt}=r`} />
+      <p className="equation-note">The initial value y₀ and rate r stay fixed during a run. The current value y(t) changes with time.</p>
+      <dl className="__MODEL_ID__-values">
+        <div><dt>Initial value · y₀</dt><dd>{parameters.initial.toFixed(3)}</dd></div>
+        <div><dt>Rate · r</dt><dd>{parameters.rate.toFixed(3)} s⁻¹</dd></div>
+        <div><dt>Elapsed time · t</dt><dd>{time.toFixed(3)} s</dd></div>
+        <div><dt>Current value · y(t)</dt><dd>{snapshot.value.toFixed(3)}</dd></div>
+      </dl>
+      <MathFormula tex={String.raw`y(${time.toFixed(3)})=(${parameters.initial.toFixed(3)})+(${parameters.rate.toFixed(3)})(${time.toFixed(3)})\approx${snapshot.value.toFixed(3)}`} />
+      <p className="equation-note">This dimensionless example rises, falls, or holds according to the sign of its rate. The drawing rescales to fit the observation window.</p>
+    </div>
+  </section>
+}

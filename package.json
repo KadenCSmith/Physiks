@@ -1,33 +1,43 @@
 {
   "name": "cinematic-app-framework",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
+  "main": "desktop/main.cjs",
   "scripts": {
     "dev": "vite --host 127.0.0.1",
     "build": "vite build",
     "preview": "vite preview --host 127.0.0.1",
     "typecheck": "tsc --noEmit",
-    "lint": "oxlint src tests",
-    "test": "vitest run"
+    "lint": "oxlint src tests scripts desktop electron-builder.config.cjs",
+    "test": "vitest run",
+    "new:model": "node scripts/new-model.mjs",
+    "check:models": "vitest run tests/model-health.test.ts",
+    "check:scaffold": "node scripts/check-scaffold.mjs",
+    "check": "npm run typecheck && npm run lint && npm run check:scaffold && npm test && npm run build",
+    "desktop:dev": "npm run build -- --base=./ && electron .",
+    "desktop:pack": "npm run build -- --base=./ && electron-builder --config electron-builder.config.cjs --dir --publish never",
+    "desktop:build": "npm run build -- --base=./ && electron-builder --config electron-builder.config.cjs --publish never"
   },
   "dependencies": {
-    "react": "19.3.0",
-    "react-dom": "19.3.0",
+    "katex": "0.18.2",
     "lucide-react": "1.48.0",
-    "katex": "0.16.22"
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
   },
   "devDependencies": {
+    "@types/katex": "0.16.7",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@types/katex": "0.16.7",
+    "electron": "44.5.1",
+    "electron-builder": "26.15.3",
+    "oxlint": "1.85.0",
     "typescript": "7.0.2",
     "vite": "7.3.6",
-    "vitest": "5.0.2",
-    "oxlint": "1.85.0"
+    "vitest": "5.0.2"
   },
   "engines": {
     "node": ">=22.12.0"
   },
-  "description": "A reusable React app starter with a cinematic shell, model registry, Finder, Toolbox, and live learning panels."
+  "description": "An AI-ready React app template with a cinematic shell, model scaffold, validated model registry, Finder, Toolbox, and live learning panels."
 }

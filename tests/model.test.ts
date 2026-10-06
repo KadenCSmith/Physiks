@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { createSessions, defineSimulation, resolveModelId, sanitizeParameters, validateRegistry } from '../src/framework/model'
-import type { SimulationDefinition } from '../src/framework/types'
+import { createSessions, defineSimulation, resolveModelId, sanitizeParameters, validateAppConfig, validateModelSamples, validateRegistry } from '../src/framework/model'
+import type { AppConfig, NumericSnapshot, SimulationDefinition } from '../src/framework/types'
 
 function fixture(id = 'example'): SimulationDefinition {
   return {
@@ -61,6 +61,106 @@ describe('simulation registration', () => {
       ...model, defaults: { constant: 2 }, controls: [{ key: 'constant', label: 'Constant', min: 2, max: 2, step: 1 }],
     })).not.toThrow()
     expect(() => defineSimulation({ ...model, defaults: {}, controls: [] })).not.toThrow()
+  })
+
+  it('rejects ambiguous control labels and unstable duplicate formula or plot identities', () => {
+    const model = fixture()
+    expect(() => defineSimulation({ ...model, controls: [model.controls[0], { ...model.controls[1], label: ' position ' }] })).toThrow(/duplicate control label/)
+    expect(() => defineSimulation({ ...model, controls: [{ ...model.controls[0], label: '' }, model.controls[1]] })).toThrow(/nonempty control label/)
+    const formula = { id: 'shared', group: 'Example', title: 'Equation', description: 'Explanation', tex: ['x=t'] }
+    expect(() => defineSimulation({ ...model, formulas: [formula, { ...formula, title: 'Another' }] })).toThrow(/duplicate formula id/)
+    expect(() => defineSimulation({ ...model, formulas: [{ ...formula, id: ' ' }] })).toThrow(/nonempty id/)
+    expect(() => defineSimulation({ ...model, formulas: [{ ...formula, tex: [''] }] })).toThrow(/nonempty strings/)
+    expect(() => defineSimulation({ ...model, plots: [{ key: 'value', label: 'First' }, { key: 'value', label: 'Second' }] })).toThrow(/duplicate plotted key/)
+  })
+})
+
+describe('actionable model health checks', () => {
+  it('checks defaults and independent control boundaries without a combinatorial parameter grid', () => {
+    const seen = new Set<string>()
+    const model = fixture()
+    const sample = model.sample
+    model.sample = (parameters, time) => { seen.add(JSON.stringify(parameters)); return sample(parameters, time) }
+    const report = validateModelSamples(model)
+    expect(report).toEqual({ modelId: model.id, parameterCases: 5, samplePoints: 15 })
+    expect([...seen].map(value => JSON.parse(value))).toEqual(expect.arrayContaining([
+      { position: 0.5, rate: 2 }, { position: -1, rate: 2 }, { position: 1, rate: 2 },
+      { position: 0.5, rate: 0 }, { position: 0.5, rate: 10 },
+    ]))
+    expect(seen.size).toBe(5)
+  })
+
+  it('identifies the offending model, control boundary, and playback field', () => {
+    const model = fixture('bad-window')
+    model.getPlayback = parameters => ({ duration: parameters.position === -1 ? Infinity : 4, loop: false })
+    expect(() => validateModelSamples(model)).toThrow(/bad-window \[position=min \(-1\)\] getPlayback.duration: expected a positive finite number/)
+  })
+
+  it('names nonfinite snapshot and readout values at their sampled time', () => {
+    const badSnapshot = fixture('bad-state')
+    badSnapshot.sample = (_parameters, time) => ({ value: time === 4 ? NaN : 0 })
+    expect(() => validateModelSamples(badSnapshot)).toThrow(/bad-state \[defaults\] t=4 snapshot.value: expected a finite number/)
+    const badReadout = fixture('bad-readout')
+    badReadout.getReadouts = () => [{ label: 'Measurement', value: Infinity }]
+    expect(() => validateModelSamples(badReadout)).toThrow(/bad-readout \[defaults\] t=0 readout "Measurement".value: expected a finite number/)
+  })
+
+  it('reports plotted keys that disappear at a boundary and preserves thrown model errors', () => {
+    const missing = fixture('missing-plot')
+    missing.plots = [{ key: 'value', label: 'Value' }]
+    missing.sample = (parameters): NumericSnapshot => parameters.rate === 10 ? {} : { value: 0 }
+    expect(() => validateModelSamples(missing)).toThrow(/missing-plot \[rate=max \(10\)\] t=0 plots.value: key is missing/)
+    const thrown = fixture('throwing-model')
+    thrown.sample = () => { throw new Error('Solver could not converge') }
+    expect(() => validateModelSamples(thrown)).toThrow(/throwing-model \[defaults\] t=0 sample: Solver could not converge/)
+  })
+
+  it('detects sampling mutations and a nondeterministic response', () => {
+    const mutating = fixture('mutating-model')
+    mutating.sample = parameters => { parameters.rate++; return { value: 0 } }
+    expect(() => validateModelSamples(mutating)).toThrow(/mutating-model \[defaults\] t=0 sample: must not mutate/)
+    expect(mutating.defaults).toEqual({ position: 0.5, rate: 2 })
+    const random = fixture('varying-model')
+    let counter = 0
+    random.sample = () => ({ value: counter++ })
+    expect(() => validateModelSamples(random)).toThrow(/varying-model \[defaults\] t=0 sample: repeated evaluation must return the same/)
+  })
+
+  it('keeps math parsing optional and reports its formula ID and equation index', () => {
+    const model = fixture('bad-math')
+    model.formulas = [{ id: 'response', title: 'Response', group: 'Motion', description: 'Test', tex: ['valid', 'invalid'] }]
+    const checked: string[] = []
+    expect(() => validateModelSamples(model, {
+      validateTex(tex) { checked.push(tex); if (tex === 'invalid') throw new Error('Unknown command') },
+    })).toThrow(/bad-math.formulas.response.tex\[1\]: Unknown command/)
+    expect(checked).toEqual(['valid', 'invalid'])
+    expect(() => validateModelSamples(model)).not.toThrow()
+  })
+
+  it('accepts disabled/static models with a finite window and models without plots or readouts', () => {
+    const model = fixture('static-model')
+    model.defaults = {}
+    model.controls = []
+    model.getPlayback = () => ({ duration: 1, loop: false, disabled: true })
+    model.sample = () => ({})
+    model.getReadouts = () => []
+    expect(validateModelSamples(model)).toEqual({ modelId: 'static-model', parameterCases: 1, samplePoints: 3 })
+  })
+})
+
+describe('configuration connects to the registry', () => {
+  const config: AppConfig = {
+    id: 'test-app', title: 'Test', shortTitle: 'Test', description: 'Test app', version: '0.1.0',
+    switcherLabel: 'Simulation', documentationLabel: 'Reference', defaultSpeed: 0.25, defaultModelId: 'example',
+  }
+
+  it('requires a registered initial model and positive finite viewing speed', () => {
+    expect(() => validateAppConfig(config, [fixture()])).not.toThrow()
+    expect(() => validateAppConfig({ ...config, defaultModelId: 'removed' }, [fixture()])).toThrow(/defaultModelId "removed" is not registered/)
+    for (const speed of [0, -1, NaN, Infinity]) {
+      expect(() => validateAppConfig({ ...config, defaultSpeed: speed }, [fixture()])).toThrow(/defaultSpeed must be positive and finite/)
+    }
+    expect(() => validateAppConfig({ ...config, id: 'Unsafe App' }, [fixture()])).toThrow(/storage namespace/)
   })
 })
 

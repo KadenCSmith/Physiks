@@ -1,0 +1,33 @@
+import { defineSimulation } from '../../framework/model'
+import { sampleModel, getPlayback } from './calculation'
+import { Scene } from './Scene'
+import { Lesson } from './Lesson'
+import { formulas } from './formulas'
+import './styles.css'
+
+// Keep controls, units, equations, scene, and tests aligned when replacing this baseline.
+export const __MODEL_EXPORT__ = defineSimulation({
+  id: '__MODEL_ID__',
+  title: __TITLE_LITERAL__,
+  description: 'An illustrative linear response with a constant rate.',
+  eyebrow: 'LINEAR RESPONSE',
+  defaults: { initial: 0, rate: 1, window: 10 },
+  controls: [
+    { key: 'initial', label: 'Initial value', symbol: 'y₀', min: -10, max: 10, step: 0.1 },
+    { key: 'rate', label: 'Rate of change', symbol: 'r', unit: 's⁻¹', min: -5, max: 5, step: 0.1 },
+    { key: 'window', label: 'Observation window', symbol: 'tₑ', unit: 's', min: 1, max: 60, step: 1 },
+  ],
+  sample: sampleModel,
+  getPlayback,
+  getReadouts: (_parameters, snapshot) => [
+    { label: 'Current value', value: snapshot.value, tone: 'position' },
+    { label: 'Rate of change', value: snapshot.derivative, unit: 's⁻¹', tone: 'velocity' },
+    { label: 'Elapsed time', value: snapshot.time, unit: 's' },
+  ],
+  Scene, Lesson, formulas,
+  plots: [
+    { key: 'value', label: 'Current value', tone: 'position' },
+    { key: 'derivative', label: 'Rate of change', unit: 's⁻¹', tone: 'velocity' },
+  ],
+  guides: [{ title: 'Read the linear response', text: 'The value starts at the initial value and changes by the same amount each second. A negative rate makes it decrease; a zero rate holds it constant.' }],
+})

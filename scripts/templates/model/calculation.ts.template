@@ -1,0 +1,12 @@
+import type { NumericParameters } from '../../framework/types'
+
+// Replace this illustrative equation with source-grounded domain behavior.
+// Keep sampling deterministic; the shell sanitizes parameters to declared bounds.
+export function sampleModel(parameters: NumericParameters, time: number) {
+  const t = Number.isFinite(time) ? Math.max(0, time) : 0
+  return { time: t, value: parameters.initial + parameters.rate * t, derivative: parameters.rate }
+}
+
+export function getPlayback(parameters: NumericParameters) {
+  return { duration: parameters.window, loop: false, note: 'A finite observation of a constant rate of change.' }
+}

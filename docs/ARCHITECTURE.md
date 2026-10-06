@@ -18,6 +18,9 @@ The app separates reusable interface behavior from each model's calculations and
 | `src/framework/Math.tsx` | Safe mathematical rendering with accessible MathML |
 | `src/framework/styles.css`, `cinematic.css` | Shared typography, layout, color, and responsive shell |
 | `src/examples` | Replaceable examples, their scenes, learning panels, formulas, and local styling |
+| `src/models/<id>` | App-specific models generated as small separate calculation, scene, lesson, formula, definition, and style files |
+| `scripts/new-model.mjs`, `scripts/templates/model` | Dependency-free scaffold generator and editable source templates |
+| `AGENTS.md`, `docs/AI_START_HERE.md`, `docs/APP_BRIEF.md` | AI workflow, edit boundaries, and app requirements |
 
 ## Model contract
 
@@ -45,6 +48,8 @@ Parameters are stored under `<appConfig.id>:parameters:v1`, with a separate reco
 
 ## Extending the starter
 
-Change branding in the configuration and add domain-specific modules beside the examples. A scene can use SVG, canvas, WebGL, or normal React elements. The framework does not require a particular renderer. Use local styling for domain visuals while preserving the shell's layout and keyboard access.
+Change branding in the configuration and generate domain-specific modules under `src/models/<id>`. The generator prints registration instructions without rewriting the registry. A scene can use SVG, canvas, WebGL, or normal React elements. The framework does not require a particular renderer. Use local styling for domain visuals while preserving the shell's layout and keyboard access.
+
+`validateAppConfig` checks the app ID, default model, and viewing speed. `validateModelSamples` checks defaults and each individual parameter boundary at the start, midpoint, and endpoint. It reports the model, case, quantity, and time for invalid state, nondeterministic/mutating sampling, bad playback, or missing plotted quantities. A TeX validation callback supports strict equation checks without adding a math renderer to the validation module. These checks do not prove domain equations or all combinations of parameter values; keep domain tests beside them.
 
 If a project later needs richer parameter types or state, extend the explicit type contract and its tests together. The initial starter deliberately supports numeric parameters and snapshots, keeping the common simulation path small and clear.

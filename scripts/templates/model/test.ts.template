@@ -1,0 +1,32 @@
+import { describe, expect, it } from 'vitest'
+import katex from 'katex'
+import { __MODEL_EXPORT__ } from '../src/models/__MODEL_ID__/model'
+import { sampleModel } from '../src/models/__MODEL_ID__/calculation'
+
+// Replace these expectations with meaningful checks of your actual domain equations.
+describe('__MODEL_ID__', () => {
+  it('starts at the declared initial value and integrates the signed rate', () => {
+    expect(sampleModel({ initial: 3, rate: -2, window: 10 }, 0).value).toBe(3)
+    expect(sampleModel({ initial: 3, rate: -2, window: 10 }, 4).value).toBe(-5)
+    expect(sampleModel({ initial: 3, rate: -2, window: 10 }, 4).derivative).toBe(-2)
+    expect(sampleModel({ initial: 3, rate: 0, window: 10 }, 4).value).toBe(3)
+  })
+  it('keeps the observation finite and nonperiodic at control boundaries', () => {
+    for (const control of __MODEL_EXPORT__.controls) for (const value of [control.min, control.max]) {
+      const parameters = { ...__MODEL_EXPORT__.defaults, [control.key]: value }
+      const playback = __MODEL_EXPORT__.getPlayback(parameters)
+      expect(playback.loop).toBe(false)
+      expect(playback.duration).toBeGreaterThan(0)
+      for (const time of [0, playback.duration / 2, playback.duration]) {
+        const snapshot = __MODEL_EXPORT__.sample(parameters, time)
+        expect(Object.values(snapshot).every(Number.isFinite)).toBe(true)
+        for (const plot of __MODEL_EXPORT__.plots) expect(Number.isFinite(snapshot[plot.key as keyof typeof snapshot])).toBe(true)
+      }
+    }
+  })
+  it('renders each reference equation as valid semantic math', () => {
+    for (const entry of __MODEL_EXPORT__.formulas) for (const tex of entry.tex) {
+      expect(() => katex.renderToString(tex, { throwOnError: true, strict: 'error', trust: false })).not.toThrow()
+    }
+  })
+})
