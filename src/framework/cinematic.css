@@ -1,0 +1,91 @@
+/* Adapted from the user's zombie-fire-suppression-sim v0.20.0 cinematic shell.
+   Header, original navigation icons, drawers, and portals retain that design. */
+body.cinematic-ui{--paper:#c3c3c3;--line:#333;--muted:#777;background:#000;color:var(--paper);font-family:'Helvetica Neue',Helvetica,Arial,sans-serif}
+body.cinematic-ui{overflow-x:clip}
+.cinematic-header{position:fixed;inset:0 0 auto;z-index:1100;display:grid;grid-template-columns:18vw 39vw 24vw minmax(0,10vw);gap:0;height:145px;padding:20px 4.5vw;background:linear-gradient(#000 72%,#0000);color:#aaa;transition:height .5s,padding .5s}
+.cinematic-header>*{min-width:0}
+.cinematic-header button{background:none;border:0;border-radius:0;color:inherit;padding:0;font-family:inherit;font-weight:200;text-align:left;cursor:pointer}
+.cinematic-header button:hover{color:#f0f0f0}
+.cinematic-header button:focus-visible{outline:1px solid #fff;outline-offset:6px}
+.cinematic-brand{font-size:clamp(24px,2vw,42px);line-height:1.04;align-self:start;letter-spacing:-.045em;white-space:nowrap}
+.cinematic-brand>span{display:block;margin-top:4px}
+.cinematic-nav-button{display:flex;align-items:flex-start;gap:13px;white-space:nowrap;width:100%}
+.cinematic-nav-button>span{font-size:clamp(23px,2vw,42px);letter-spacing:-.045em;line-height:1.12}
+.version-navigation>.cinematic-nav-button>span{font-size:clamp(28px,2.5vw,54px)}
+.cinematic-nav-button svg,.toolbox-navigation svg{fill:none;stroke:currentColor;stroke-width:1;overflow:visible;flex-shrink:0}
+.version-navigation{position:relative}
+.version-pinwheel{width:49px;height:107px}
+.pinwheel-rotor{transform-origin:36px 33px;animation:version-spin 2s linear infinite;animation-play-state:paused}
+.version-navigation:hover .pinwheel-rotor,.version-navigation:focus-within .pinwheel-rotor{animation-play-state:running}
+@keyframes version-spin{to{transform:rotate(360deg)}}
+.finder-navigation>.cinematic-nav-button svg{width:100px;height:100px}
+.cinematic-sublinks{display:flex;flex-direction:column;align-items:flex-start;gap:0;margin-top:-58px;margin-left:62px;font-size:clamp(12px,1.05vw,19px);line-height:1.28;color:#777}
+.finder-navigation .cinematic-sublinks{margin-left:113px;margin-top:-58px;white-space:nowrap}
+.cinematic-sublinks button[aria-current=page]{color:#ddd}
+.toolbox-navigation{justify-self:end;max-width:180px;display:flex;flex-direction:column;align-items:center}
+.toolbox-navigation svg{width:clamp(98px,11vw,170px);height:100px;max-width:100%}
+.toolbox-navigation>span{display:none}
+.cinematic-header.is-compact{height:88px;padding-top:17px;background:linear-gradient(#000 88%,#0000)}
+.is-compact .cinematic-brand{font-size:22px}
+.is-compact .cinematic-nav-button>span{font-size:24px}
+.is-compact .version-navigation>.cinematic-nav-button>span{font-size:30px}
+.is-compact .version-pinwheel{height:52px;width:29px}
+.is-compact .cinematic-sublinks{display:none}
+.is-compact .finder-navigation>.cinematic-nav-button svg{height:49px;width:49px}
+.is-compact .toolbox-navigation svg{height:49px;width:90px}
+.version-menu{position:absolute;top:112px;left:0;width:440px;max-width:calc(100vw - 36px);background:#111;border:1px solid #555;padding:20px;box-shadow:0 30px 80px #000b;z-index:1}
+.is-compact .version-menu{top:57px}
+.version-menu>button{display:flex;gap:16px;width:100%;padding:15px 0;border-bottom:1px solid #303030}
+.version-menu button small{font:10px ui-monospace,monospace;color:#777;padding-top:4px}
+.version-menu button>span{font-size:20px;flex:1;min-width:0}
+.version-menu button em{display:block;font-size:11px;font-weight:400;font-style:normal;line-height:1.55;color:#999;margin-top:5px}
+.version-menu button b{font-size:22px;font-weight:200}
+.version-menu button[aria-current=page]{color:#fff}
+.cinematic-backdrop{position:fixed;inset:0;z-index:1190;border:0;background:#0006;backdrop-filter:blur(3px);cursor:default}
+.cinematic-drawer{position:fixed;inset:0 0 0 auto;width:30vw;min-width:360px;max-width:100vw;z-index:1200;background:#101010;border-left:1px solid #414141;color:#c3c3c3;transform:translateX(100%);visibility:hidden;transition:transform .42s cubic-bezier(.22,1,.36,1),visibility .42s;display:flex;flex-direction:column;font:13px/1.55 'Helvetica Neue',Helvetica,Arial,sans-serif;box-shadow:-20px 0 70px #0004}
+.cinematic-drawer.is-open{transform:translateX(0);visibility:visible}
+.drawer-heading{display:flex;justify-content:space-between;align-items:center;padding:29px 30px 23px;border-bottom:1px solid #353535;flex-shrink:0}
+.drawer-heading span{font:9px ui-monospace,monospace;letter-spacing:.16em;color:#888}
+.drawer-heading h2{font-size:44px;font-weight:200;letter-spacing:-.04em;margin:4px 0 0;line-height:1}
+.drawer-heading button{width:33px;height:33px;padding:0;background:none;border:0;color:#aaa;cursor:pointer;display:grid;place-items:center}
+.drawer-content{padding:24px 30px 40px;overflow:auto;min-height:0;scrollbar-width:thin;scrollbar-color:#555 transparent;overscroll-behavior:contain}
+.cinematic-drawer [hidden]{display:none!important}
+.drawer-section-label{font:9px ui-monospace,monospace;color:#888;letter-spacing:.13em;margin:10px 0 17px;display:flex;justify-content:space-between}
+.drawer-intro,.cinematic-drawer p{font-size:12px;color:#999;line-height:1.7}
+.drawer-extras-heading{margin-top:35px;padding-top:24px;border-top:1px solid #3b3b3b}
+.cinematic-drawer button,.cinematic-drawer input,.cinematic-drawer select{font-family:inherit;border-radius:0!important;box-shadow:none!important}
+.cinematic-drawer button:not(.drawer-heading button){color:#bbb;background:transparent;border:1px solid #444;padding:9px 11px;font-size:12px;cursor:pointer}
+.cinematic-drawer button:hover{border-color:#aaa;color:#fff}
+.cinematic-drawer button[aria-pressed=true]{color:#eee;border-color:#aaa;background:#292929}
+.cinematic-drawer input:not([type=checkbox]):not([type=range]),.cinematic-drawer select{background:#191919;color:#ddd;border:1px solid #454545;padding:7px;min-width:0;max-width:100%;font-size:12px;accent-color:#ccc}
+.cinematic-drawer input[type=checkbox]{accent-color:#aaa}
+.cinematic-drawer input[type=range]{accent-color:#ccc;background:#333;cursor:pointer}
+.cinematic-drawer input:focus-visible,.cinematic-drawer select:focus-visible,.cinematic-drawer button:focus-visible,.cinematic-drawer summary:focus-visible{outline:1px solid #ddd;outline-offset:4px}
+.cinematic-drawer details{border:0;border-top:1px solid #333;background:transparent;color:#ccc;border-radius:0;margin:15px 0;padding:12px 0}
+.cinematic-drawer summary{font-size:14px;color:#ddd;font-weight:400;cursor:pointer}
+.cinematic-drawer details p{font-size:11px}
+.cinematic-drawer small{color:#999}
+.cinematic-drawer h2,.cinematic-drawer h3{color:#ccc}
+.cinematic-drawer h3{font-weight:400}
+.finder-search{display:flex;align-items:center;border-bottom:1px solid #666;padding:7px 0 12px;gap:12px}
+.finder-search input{border:0!important;background:none!important;width:100%;padding:0!important;font-size:15px!important}
+.finder-search>span{color:#777}
+.finder-tabs{display:flex;margin:20px 0 28px;gap:7px}
+.finder-tabs button{font-size:10px!important;flex:1;padding:8px 4px!important}
+.finder-values,.finder-destinations{margin-bottom:28px}
+.finder-values>button,.finder-destinations>button{display:flex!important;gap:12px;width:100%;border:0!important;border-top:1px solid #333!important;padding:13px 0!important;text-align:left;align-items:center}
+.finder-values>button>span,.finder-destinations>button>span{flex:1;min-width:0;overflow-wrap:anywhere}
+.finder-values small,.finder-destinations small{display:block;font-size:10px;line-height:1.6;margin-top:4px;color:#999}
+.finder-values strong{font:11px ui-monospace,monospace;font-weight:400;text-align:right}
+.finder-values svg{flex-shrink:0}
+.finder-destinations b{font-size:21px;font-weight:200}
+.finder-handbook{margin-top:28px}
+.finder-handbook summary{font-size:13px!important}
+@media(min-width:2000px){.cinematic-header{height:165px;padding-top:27px}.version-pinwheel{width:61px;height:122px}.cinematic-sublinks{margin-top:-68px;margin-left:74px}}
+@media(max-width:1150px){.cinematic-header,.cinematic-header.is-compact{padding-left:3vw;padding-right:3vw;grid-template-columns:22vw 35vw 25vw minmax(0,12vw)}.cinematic-brand{font-size:24px}.cinematic-nav-button>span{font-size:24px}.version-pinwheel{width:36px;height:93px}.cinematic-sublinks{margin-left:49px;margin-top:-60px;font-size:12px}.finder-navigation>.cinematic-nav-button svg{width:70px;height:80px}.finder-navigation .cinematic-sublinks{margin-left:82px;margin-top:-49px;font-size:10px}.toolbox-navigation svg{width:115px;height:80px}.cinematic-drawer{width:38vw}}
+@media(max-width:760px){.cinematic-header,.cinematic-header.is-compact{height:102px;grid-template-columns:minmax(0,1.2fr) minmax(0,1.45fr) 37px 55px;gap:12px;padding:20px 18px}.cinematic-brand,.is-compact .cinematic-brand{font-size:19px}.cinematic-nav-button>span,.is-compact .cinematic-nav-button>span{font-size:18px;white-space:normal}.version-pinwheel,.is-compact .version-pinwheel{height:44px;width:25px}.cinematic-nav-button{gap:7px}.cinematic-sublinks{display:none}.finder-navigation>.cinematic-nav-button svg,.is-compact .finder-navigation>.cinematic-nav-button svg{width:37px;height:37px}.finder-navigation .cinematic-nav-button>span{display:none}.toolbox-navigation svg,.is-compact .toolbox-navigation svg{height:37px;width:55px}.cinematic-drawer{width:min(100vw,460px);min-width:0}.drawer-heading,.drawer-content{padding-left:22px;padding-right:22px}.version-menu,.is-compact .version-menu{position:fixed;top:85px;left:18px;width:calc(100vw - 36px)}}
+@media(max-width:400px){.cinematic-header,.cinematic-header.is-compact{grid-template-columns:minmax(0,1fr) minmax(0,1.25fr) 30px 42px;gap:9px;padding-left:14px;padding-right:14px}.cinematic-brand,.is-compact .cinematic-brand{font-size:17px}.cinematic-nav-button>span,.is-compact .cinematic-nav-button>span{font-size:16px}.version-pinwheel,.is-compact .version-pinwheel{width:20px}.finder-navigation>.cinematic-nav-button svg,.is-compact .finder-navigation>.cinematic-nav-button svg{width:30px}.toolbox-navigation svg,.is-compact .toolbox-navigation svg{width:42px}}
+@media(max-width:1150px){.version-navigation>.cinematic-nav-button>span,.is-compact .version-navigation>.cinematic-nav-button>span{font-size:30px}}
+@media(max-width:760px){.version-navigation>.cinematic-nav-button>span,.is-compact .version-navigation>.cinematic-nav-button>span{font-size:21px}}
+@media(max-width:400px){.version-navigation>.cinematic-nav-button>span,.is-compact .version-navigation>.cinematic-nav-button>span{font-size:18px}}
+@media(prefers-reduced-motion:reduce){.cinematic-drawer,.cinematic-header{transition:none}.pinwheel-rotor{animation:none}}

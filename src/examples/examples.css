@@ -1,0 +1,46 @@
+.example-scene{display:block;width:100%;height:auto;min-height:260px;overflow:visible;color:#c0c0c0}
+.example-track,.example-support,.example-ruler{fill:none;stroke:#505050;stroke-width:1.5}
+.example-equilibrium{stroke:#444;stroke-dasharray:3 6;stroke-width:1}
+.example-spring{fill:none;stroke:#aaa;stroke-width:1.7;stroke-linejoin:round}
+.example-block{fill:#171b1c;stroke:#9ba8ac;stroke-width:1.3}
+.example-block-text{fill:#d7dddd;font:22px ui-monospace,monospace}
+.example-block-focus{fill:none;stroke:transparent;stroke-width:2}
+.example-drag-handle{cursor:grab;touch-action:none;outline:none}
+.example-drag-handle:active{cursor:grabbing}
+.example-drag-handle:focus-visible .example-block-focus{stroke:#d9ad87}
+.example-scene-label{fill:#7e8587;font:10px ui-monospace,monospace;letter-spacing:.06em}
+.example-scene-value{fill:#c9d0d1;font:16px ui-monospace,monospace}
+.example-force{fill:none;stroke:#89c3b0;stroke-width:1.6}
+.example-force text{fill:#89c3b0;stroke:none;font:10px ui-monospace,monospace}
+.example-vessel{fill:#101414;stroke:#626c6d;stroke-width:1.3}
+.example-level{fill:#233b35}
+.example-level-surface{stroke:#89c3b0;stroke-width:2}
+.example-target-line{stroke:#d9ad87;stroke-width:1.5;stroke-dasharray:4 5}
+.example-target-text{fill:#d9ad87;font:12px ui-monospace,monospace}
+.example-value-point{fill:#89c3b0;stroke:#101414;stroke-width:2}
+.example-lesson{min-width:0;color:#bfc1c0}
+.example-lesson header{margin-bottom:18px}
+.example-eyebrow{font:9px ui-monospace,monospace;color:#707979;letter-spacing:.06em}
+.example-lesson h2{font-size:23px;font-weight:300;letter-spacing:-.02em;margin:8px 0 0}
+.example-equation-card{border:1px solid #2b3030;background:#080a0a;padding:18px;margin-bottom:12px;min-width:0}
+.example-lesson p,.example-supporting-notes p{font-size:12px;line-height:1.75;color:#919999;margin:12px 0 0}
+.example-lesson .math-block{min-width:0;overflow-x:auto;font-size:13px;scrollbar-width:thin}
+.example-lesson .katex-display{margin:.7em 0}
+.example-lesson .katex-display>.katex{text-align:left}
+.example-factor-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:18px 0}
+.example-factor-grid>div{padding:11px 9px;border:1px solid #292f2e;min-width:0}
+.example-factor-grid span{display:block;font-size:10px;color:#8c9693;line-height:1.5}
+.example-factor-grid output{display:block;margin-top:7px;font:14px ui-monospace,monospace;color:#c2ceca;overflow-wrap:anywhere}
+.example-factor-grid small{font-size:10px;color:#89938e}
+.example-metrics{display:grid;gap:12px;margin:17px 0 0}
+.example-metrics>div{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.example-metrics dt{font-size:11px;color:#8c9693}
+.example-metrics dd{margin:0;font:11px ui-monospace,monospace;color:#c2ceca;flex-shrink:0}
+.example-detail{border:1px solid #2b3030;margin-top:10px;min-width:0}
+.example-detail>summary{padding:15px;font-size:12px;cursor:pointer;color:#bcc5c0}
+.example-detail>summary:focus-visible{outline:1px solid #d9ad87;outline-offset:-3px}
+.example-detail>div{padding:0 15px 16px;min-width:0}
+.example-supporting-notes{border-top:1px solid #2b3030;margin-top:18px;padding-top:15px}
+.example-supporting-notes h3{font-size:14px;font-weight:400;color:#b7c0bc;margin:0}
+@media(max-width:420px){.example-equation-card{padding:13px}.example-factor-grid{gap:6px}.example-factor-grid>div{padding:9px 7px}.example-scene{min-height:200px}.example-metrics dt{font-size:10px}}
+@media(prefers-reduced-motion:reduce){.example-scene *{transition:none!important}}
