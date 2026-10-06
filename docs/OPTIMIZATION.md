@@ -40,7 +40,24 @@ Native UI checks covered both example models, model switching, labeled live math
 
 The public v0.3.0 release completed all four native build jobs: Mac arm64 2,630,366 bytes, Intel Mac 2,764,582 bytes, Windows x64 2,201,352 bytes, and Linux x64 81,463,800 bytes. Linux still carries its required library ecosystem. The downloaded public arm64 DMG matched its published SHA-256 checksum. These are build/download checks; other-platform runtime opening was not tested on this Mac.
 
-The local v0.3.1 follow-up includes the one-prompt installer and complete native dependency notices: 5,310,248 bytes for the arm64 app and 2,847,799 bytes for its DMG (97.87% smaller than the original installer). Its SHA-256 is `cd31724acf38d75bcef6e570ce266b1b1c32bdbb9b83e60eadeaddfb5402aced`. Physical bundle inspection confirmed 237 native dependency entries, five exact source archives matching their locked checksums, and all 59 frontend font files. All 103 frontend/build tests and ten native tests passed. The helper opened the new copy in `/Applications`, ejected the mounted image, and moved the exact original installer to Trash without a second cleanup prompt. These are local installer results; macOS security approval remains a separate requirement when requested by the OS.
+The local v0.3.1 follow-up includes the one-prompt installer and Cargo dependency notices: 5,310,248 bytes for the arm64 app and 2,847,799 bytes for its DMG (97.87% smaller than the original installer). Its SHA-256 is `cd31724acf38d75bcef6e570ce266b1b1c32bdbb9b83e60eadeaddfb5402aced`. Physical bundle inspection confirmed 237 native dependency entries, five exact source archives matching their locked checksums, and all 59 frontend font files. All 103 frontend/build tests and ten native tests passed. The helper opened the new copy in `/Applications`, ejected the mounted image, and moved the exact original installer to Trash without a second cleanup prompt. These are local installer results; macOS security approval remains a separate requirement when requested by the OS.
+
+## Published v0.3.2 verification
+
+[The v0.3.2 release](https://github.com/KadenCSmith/Physiks/releases/tag/v0.3.2) passed frontend validation, all 103 frontend/build tests, and each platform's native tests and installer build. The four downloads are public and returned HTTP 200:
+
+| Platform | Installer bytes |
+| --- | ---: |
+| Apple Silicon Mac | 2,873,707 |
+| Intel Mac | 3,011,748 |
+| Windows x64 | 2,391,930 |
+| Linux x64 | 81,725,944 |
+
+The public Apple Silicon DMG was downloaded and matched both `SHA256SUMS.txt` and the exact CI artifact opened on this Mac: `9eba782c64084b88eb59b54aefba3397f4f91c71b7b07b771a5130db3595581a`. Its installer is 97.85% smaller than the original Electron DMG. The CI app totals 5,353,688 bytes, including 237 Cargo dependency notices and five source archives matching their locked checksums. These inventories cover Cargo and renderer dependencies; they are not an audit of all system libraries inside the Linux AppImage.
+
+The final CI app replaced the previous copy in `/Applications`, opened the installed version 0.3.2, exited the mounted copy, detached its disk, and removed the exact original installer from its source path through the helper's recoverable Trash operation. There was no second cleanup prompt. A subsequent normal launch ran from `/Applications` without an installation-session argument or setup dialog. The installed app passed deep/strict signature verification. This remains an ad-hoc signature: the CLI download and launch do not establish Gatekeeper acceptance of a quarantined browser download.
+
+The shared header icons were checked visually in full and compact native windows and in the published Chrome preview. Their visible bottom edges now align, including the pinwheel stem and Toolbox outlines. The published preview showed version 0.3.2, autoplay, labeled live substitutions, `2 kg`, and a maximum of three decimals without trailing zeros. Other-platform downloads and native build tests passed; runtime opening on Windows, Intel Mac, and Linux was not tested on this Mac.
 
 ## Animation and display precision
 
