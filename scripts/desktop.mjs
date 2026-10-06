@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { readDesktopIdentity } from '../desktop/identity.cjs'
 import { desktopPlan, hostTarget } from '../desktop/build-config.mjs'
 import { resolveInstaller } from '../desktop/installer.mjs'
+import { generateNativeNotices, includeNativeNotices } from './native-notices.mjs'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const [mode, ...options] = process.argv.slice(2)
@@ -32,6 +33,10 @@ const plan = desktopPlan(identity, mode, target, process.env.APPLE_SIGNING_IDENT
 if (mode === 'test') {
   run('cargo', ['test', '--locked', '--manifest-path', 'src-tauri/Cargo.toml'])
 } else {
+  run('cargo', ['fetch', '--locked', '--manifest-path', 'src-tauri/Cargo.toml', '--target', target])
+  const notices = generateNativeNotices(root, target)
+  plan.config = includeNativeNotices(plan.config, notices.directory)
+  console.log(`Bundling native notices for ${notices.packages} dependencies and ${notices.sourceArchives} source archives.`)
   const args = [mode === 'dev' ? 'dev' : 'build', '--config', JSON.stringify(plan.config)]
   if (mode === 'dev') args.push('--no-watch')
   else {

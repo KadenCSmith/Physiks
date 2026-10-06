@@ -40,6 +40,8 @@ Native UI checks covered both example models, model switching, labeled live math
 
 The public v0.3.0 release completed all four native build jobs: Mac arm64 2,630,366 bytes, Intel Mac 2,764,582 bytes, Windows x64 2,201,352 bytes, and Linux x64 81,463,800 bytes. Linux still carries its required library ecosystem. The downloaded public arm64 DMG matched its published SHA-256 checksum. These are build/download checks; other-platform runtime opening was not tested on this Mac.
 
+The local v0.3.1 follow-up includes the one-prompt installer and complete native dependency notices: 5,310,248 bytes for the arm64 app and 2,847,799 bytes for its DMG (97.87% smaller than the original installer). Its SHA-256 is `cd31724acf38d75bcef6e570ce266b1b1c32bdbb9b83e60eadeaddfb5402aced`. Physical bundle inspection confirmed 237 native dependency entries, five exact source archives matching their locked checksums, and all 59 frontend font files. All 103 frontend/build tests and ten native tests passed. The helper opened the new copy in `/Applications`, ejected the mounted image, and moved the exact original installer to Trash without a second cleanup prompt. These are local installer results; macOS security approval remains a separate requirement when requested by the OS.
+
 ## Animation and display precision
 
 The previous clock published only after a 33.3 ms gate and reset the gate timestamp to the current frame, skipping additional updates at some display boundaries. The new clock publishes every animation frame. A deterministic two-second 60 Hz trace improves from 42 publications to 120; this measures scheduler behavior, not native rendered FPS.

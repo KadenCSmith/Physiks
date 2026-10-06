@@ -74,6 +74,7 @@ mod macos {
         fingerprint: Fingerprint,
         parent_pid: u32,
         created_ms: u64,
+        cleanup_requested: bool,
     }
 
     #[derive(Debug, Clone, PartialEq, Eq)]
@@ -104,6 +105,10 @@ mod macos {
             return Ok(LaunchDecision::Continue);
         }
 
+        // An ordinary installed launch never consults mounted disks or shows installer UI.
+        if !bundle_needs_installation(&bundle) {
+            return Ok(LaunchDecision::Continue);
+        }
         let images = mounted_images()?;
         let source = if let Some(mounted) = image_containing_bundle(&images, &bundle) {
             Some((bundle.clone(), mounted))
@@ -121,28 +126,26 @@ mod macos {
         let applications = writable_applications_directory(&home)?;
         let filename = source.file_name().ok_or("The app bundle has no name.")?;
         let target = applications.join(filename);
-        if !ask(
-            &app,
-            &format!("Install {} in {} and open the installed app?\n\nThe installer will stay where it is until you choose whether to move it to Trash.", app_name(&app), applications.display()),
-            "Install and open",
-            "Not now",
-        ) {
-            return Ok(LaunchDecision::Continue);
-        }
-
         let replace = if target.exists() || fs::symlink_metadata(&target).is_ok() {
             validate_existing_bundle(&target, identifier)?;
             if bundle_is_running(&target)? {
                 notice(&app, "Quit the existing app first", "The installed app is still running. Quit it, then open this installer again. Your existing app and this installer have been kept.");
                 return Ok(LaunchDecision::Continue);
             }
-            if !ask(&app, &format!("Replace the existing {}?\n\nThe previous app will be moved to Trash only after the new copy has been verified.", target.display()), "Replace app", "Keep existing app") {
-                return Ok(LaunchDecision::Continue);
-            }
             true
         } else {
             false
         };
+
+        let action = if replace {
+            "Replace and open"
+        } else {
+            "Install and open"
+        };
+        let message = installation_message(app_name(&app), &target, &mounted.image, replace);
+        if !ask(&app, &message, action, "Not now") {
+            return Ok(LaunchDecision::Continue);
+        }
 
         let nonce = random_nonce()?;
         let staged = applications.join(format!(".cinematic-install-{nonce}.app"));
@@ -188,6 +191,8 @@ mod macos {
             mounted,
             parent_pid: std::process::id(),
             created_ms: now_ms(),
+            // This one consent includes verified, recoverable installer cleanup after startup.
+            cleanup_requested: true,
         };
         let directory = session_directory(&app)?;
         write_session(&directory, &session)?;
@@ -249,17 +254,12 @@ mod macos {
             remove_session(&directory, nonce);
             return Ok(());
         }
-        if !image_is_unchanged(&session)? {
+        if !session.cleanup_requested || !image_is_unchanged(&session)? {
             remove_session(&directory, nonce);
             return Ok(());
         }
-        let cleanup = ask(
-            app,
-            &format!("{} is installed and has opened successfully.\n\nEject the installer disk and move this original installer to Trash?\n{}", app_name(app), session.mounted.image.display()),
-            "Eject and move to Trash",
-            "Keep installer",
-        );
-        if cleanup && image_is_unchanged(&session)? {
+        // Consent was already given before copying. Revalidate without a second prompt.
+        if image_is_unchanged(&session)? {
             let detached = Command::new("/usr/bin/hdiutil")
                 .arg("detach")
                 .arg(&session.mounted.device)
@@ -284,6 +284,16 @@ mod macos {
             .product_name
             .as_deref()
             .unwrap_or(&app.package_info().name)
+    }
+
+    fn installation_message(name: &str, target: &Path, image: &Path, replace: bool) -> String {
+        let action = if replace { "Replace" } else { "Install" };
+        let replacement = if replace {
+            "\n\nThe previous app goes to Trash after the new copy is verified."
+        } else {
+            ""
+        };
+        format!("{action} {name} in {} and open it?{replacement}\n\nAfter it opens, eject the installer disk and move this installer to Trash:\n{}", target.parent().unwrap_or(target).display(), image.display())
     }
 
     fn ask(app: &tauri::AppHandle, message: &str, yes: &str, no: &str) -> bool {
@@ -321,8 +331,11 @@ mod macos {
     }
 
     pub(super) fn installer_executable(executable: &Path) -> bool {
-        bundle_for_executable(executable).is_some()
-            && (executable.starts_with("/Volumes") || is_translocated(executable))
+        bundle_for_executable(executable).is_some_and(|bundle| bundle_needs_installation(&bundle))
+    }
+
+    fn bundle_needs_installation(bundle: &Path) -> bool {
+        bundle.starts_with("/Volumes") || is_translocated(bundle)
     }
 
     fn clean_absolute(path: &Path) -> bool {
@@ -711,6 +724,10 @@ mod macos {
             "modifiedNanos".into(),
             Value::Integer(session.fingerprint.modified_nanos.into()),
         );
+        dict.insert(
+            "cleanupRequested".into(),
+            Value::Boolean(session.cleanup_requested),
+        );
         let file = OpenOptions::new()
             .write(true)
             .create_new(true)
@@ -758,6 +775,11 @@ mod macos {
                 },
                 parent_pid: u32::try_from(unsigned("parentPid")?).ok()?,
                 created_ms: unsigned("createdMs")?,
+                // Old or malformed markers cannot authorize implicit cleanup.
+                cleanup_requested: dict
+                    .get("cleanupRequested")
+                    .and_then(Value::as_boolean)
+                    .unwrap_or(false),
             })
         };
         Ok(parsed().filter(|session| session.nonce == nonce))
@@ -839,6 +861,57 @@ mod macos {
             assert!(!installer_executable(Path::new(
                 "/Volumes-other/App.app/Contents/MacOS/app"
             )));
+            assert!(!bundle_needs_installation(Path::new(
+                "/Applications/Example.app"
+            )));
+            assert!(!bundle_needs_installation(Path::new(
+                "/Users/test/Applications/Example.app"
+            )));
+        }
+
+        #[test]
+        fn one_consent_discloses_install_destination_and_recoverable_cleanup() {
+            let target = Path::new("/Applications/Example.app");
+            let image = Path::new("/Users/test/Downloads/exact-installer.dmg");
+            let fresh = installation_message("Example", target, image, false);
+            assert!(fresh.contains("Install Example in /Applications and open it?"));
+            assert!(fresh.contains("After it opens"));
+            assert!(fresh.contains("eject the installer disk"));
+            assert!(fresh.contains("move this installer to Trash"));
+            assert!(fresh.contains("/Users/test/Downloads/exact-installer.dmg"));
+            let replacement = installation_message("Example", target, image, true);
+            assert!(replacement.contains("Replace Example in /Applications and open it?"));
+            assert!(
+                replacement.contains("previous app goes to Trash after the new copy is verified")
+            );
+        }
+
+        #[test]
+        fn replacement_requires_same_identity_and_rejects_unrelated_files_or_links() {
+            let directory = std::env::temp_dir().join(format!(
+                "cinematic-replace-test-{}",
+                random_nonce().unwrap()
+            ));
+            let bundle = directory.join("Example.app");
+            fs::create_dir_all(bundle.join("Contents")).unwrap();
+            let mut info = Dictionary::new();
+            info.insert(
+                "CFBundleIdentifier".into(),
+                Value::String("app.cinematic.example".into()),
+            );
+            Value::Dictionary(info)
+                .to_file_xml(bundle.join("Contents/Info.plist"))
+                .unwrap();
+            assert!(validate_existing_bundle(&bundle, "app.cinematic.example").is_ok());
+            assert!(validate_existing_bundle(&bundle, "app.unrelated.example").is_err());
+            let file = directory.join("Other.app");
+            fs::write(&file, "unrelated user file").unwrap();
+            assert!(validate_existing_bundle(&file, "app.cinematic.example").is_err());
+            assert_eq!(fs::read_to_string(&file).unwrap(), "unrelated user file");
+            let link = directory.join("Linked.app");
+            std::os::unix::fs::symlink(&bundle, &link).unwrap();
+            assert!(validate_existing_bundle(&link, "app.cinematic.example").is_err());
+            fs::remove_dir_all(directory).unwrap();
         }
 
         fn identity() -> SignedIdentity {
@@ -967,6 +1040,7 @@ mod macos {
                 },
                 parent_pid: std::process::id() + 100,
                 created_ms: 1_000,
+                cleanup_requested: true,
             }
         }
 
@@ -1027,7 +1101,42 @@ mod macos {
             assert_eq!(loaded.mounted, session.mounted);
             assert_eq!(loaded.fingerprint, session.fingerprint);
             assert_eq!(loaded.parent_pid, session.parent_pid);
+            assert!(loaded.cleanup_requested);
             let path = session_path(&directory, &session.nonce);
+            let mut value = Value::from_file(&path).unwrap();
+            value
+                .as_dictionary_mut()
+                .unwrap()
+                .remove("cleanupRequested");
+            value.to_file_xml(&path).unwrap();
+            assert!(
+                !read_session(&directory, &session.nonce)
+                    .unwrap()
+                    .unwrap()
+                    .cleanup_requested
+            );
+            value
+                .as_dictionary_mut()
+                .unwrap()
+                .insert("cleanupRequested".into(), Value::String("true".into()));
+            value.to_file_xml(&path).unwrap();
+            assert!(
+                !read_session(&directory, &session.nonce)
+                    .unwrap()
+                    .unwrap()
+                    .cleanup_requested
+            );
+            value
+                .as_dictionary_mut()
+                .unwrap()
+                .insert("cleanupRequested".into(), Value::Boolean(false));
+            value.to_file_xml(&path).unwrap();
+            assert!(
+                !read_session(&directory, &session.nonce)
+                    .unwrap()
+                    .unwrap()
+                    .cleanup_requested
+            );
             fs::set_permissions(&path, fs::Permissions::from_mode(0o644)).unwrap();
             assert!(read_session(&directory, &session.nonce).unwrap().is_none());
             fs::remove_file(&path).unwrap();

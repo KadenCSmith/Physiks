@@ -21,8 +21,9 @@ Windows uses Tauri's `downloadBootstrapper` WebView2 installation mode. If the r
 
 1. Open the correct DMG, then open the app inside the mounted image. Mounting the disk image alone does not start an installer.
 2. If macOS blocks an app you trust, first attempt to open it, then go to **System Settings → Privacy & Security → Open Anyway** and confirm the system prompt. Follow [Apple's official instructions](https://support.apple.com/en-us/102445). A damaged or malware warning needs investigation, not an automatic exception.
-3. Once macOS permits launch, choose **Install and open** to copy the app into `/Applications`, or your personal `~/Applications` folder if the system folder is not writable. The helper verifies the copied bundle and starts it. **Not now** keeps the app running from its current location. Replacing an existing app requires a separate **Replace app** confirmation; quit an existing running copy first.
-4. After the installed copy shows its main window and confirms startup, choose **Eject and move to Trash** to clean up, or **Keep installer** to retain the DMG. Cleanup checks the exact original installer again, ejects its mounted image without forcing it, and moves the DMG to the recoverable Trash. An ambiguous or changed installer is kept.
+3. Once macOS permits launch, one prompt offers **Install and open** or **Not now**. Installing copies the app into `/Applications`, or your personal `~/Applications` folder if the system folder is not writable. The same prompt explains that, after the verified installed copy opens, its installer disk will be ejected and the exact original DMG moved to recoverable Trash. **Not now** keeps the existing app and installer unchanged.
+4. If the destination contains the same app identity and that app is not running, the one prompt instead offers **Replace and open** and explains that the previous copy will move to recoverable Trash after verification. A different app, unexpected file, symlink, or running copy is never overwritten. Quit a running copy before trying again.
+5. The installed copy shows its main window and confirms startup before cleanup. The private installation session carries the original consent, so there is no second cleanup confirmation. Cleanup rechecks the exact original installer and its mounted disk, ejects without forcing, and moves only that DMG to Trash. Missing consent, a failed launch, or an ambiguous or changed installer leaves it in place. Normal launches of the installed app show no installation or cleanup prompts; native error messages appear only for actionable failures. macOS may still require its own security or permission prompts.
 
 The helper cannot approve a Gatekeeper decision before the app runs. It preserves quarantine and signatures and does not change macOS trust settings. A failed launch keeps the installer. If macOS launches a translocated copy, the helper proceeds only when it can identify one original mounted bundle with the same signed identity and version; missing or ambiguous matches skip installation. Dragging the app to Applications remains a normal manual installation path.
 
@@ -69,6 +70,8 @@ npm run desktop:build
 
 `desktop:pack` creates a local application for inspection. `desktop:build` creates the current platform's installer. Downloadable outputs are normalized under the ignored `release/` directory; native compilation artifacts remain under `src-tauri/target/`.
 
+Every desktop build fetches the locked Cargo dependencies, then generates target-specific native credits offline with `scripts/native-notices.mjs`. The app resources include `notices/NATIVE_NOTICES.txt`, the dependency inventory, and exact unmodified MPL source archives verified against `Cargo.lock`. Versioned, checksum-verified license overrides live in `desktop/license-overrides`; new missing license text stops packaging rather than silently omitting credits. The renderer's `THIRD_PARTY_NOTICES.txt` and all font files remain bundled separately.
+
 A specific architecture can be selected with `--target`, provided the target is installed and supported by the build host. For example, on a Mac with the corresponding Rust target installed:
 
 ```sh
@@ -98,11 +101,11 @@ Tauri also supports App Store Connect API notarization through `APPLE_API_ISSUER
 
 ## Publish versioned downloads
 
-[`release.yml`](../.github/workflows/release.yml) runs for a version tag. Commit the application and matching package/lockfile version first. For version 0.3.0:
+[`release.yml`](../.github/workflows/release.yml) runs for a version tag. Commit the application and matching package/lockfile version first. For version 0.3.1:
 
 ```sh
-git tag v0.3.0
-git push origin v0.3.0
+git tag v0.3.1
+git push origin v0.3.1
 ```
 
 Use a new `v<package.json version>` for each release. Do not reuse or move a published tag.

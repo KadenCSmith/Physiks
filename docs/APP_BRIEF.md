@@ -54,7 +54,7 @@ Repeat this block for each model.
 - Target platforms: [macOS arm64 and x64, Windows x64, Linux x64, or the requested subset]
 - Package name / version: [to determine; release tag must match `v<package version>`]
 - App title / unique app ID: [defaults from `src/app.config.ts`; record intended identity]
-- Installer product metadata overrides: [none needed, or exact overrides in `electron-builder.config.cjs`]
+- Installer product metadata overrides: [derived from `src/app.config.ts` and `package.json` through `desktop/identity.cjs` and `desktop/build-config.mjs`]
 - Icons: [owner-provided assets and paths, or existing defaults retained]
 - Release repository / tag: [to determine from the requested delivery]
 - Signing / notarization: [owner-supplied identity and configured secret names, or not configured; never paste secret values]

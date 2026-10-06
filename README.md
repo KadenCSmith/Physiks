@@ -89,13 +89,15 @@ The workflow builds under `/<your-repository-name>/`. It never deploys pull requ
 
 Filenames include the app name and version. Each release includes SHA-256 checksums. Version 0.3.0 uses Tauri v2; macOS requires version 12 or later. Windows uses WebView2 and the installer downloads its runtime if needed. Linux packages use WebKitGTK 4.1 and are built on Ubuntu 22.04; compatibility still depends on the distribution.
 
-On a Mac, open the DMG, then open the app inside it. After macOS allows it to start, the app offers to copy itself to Applications and launch the installed copy. It then offers to eject the mounted installer and move the original DMG to the recoverable Trash. Mounting a DMG alone cannot install or open an app.
+On a Mac, open the DMG, then open the app inside it. After macOS allows it to start, one **Install and open** prompt covers copying to Applications, opening the installed copy, and ejecting and moving the original DMG to recoverable Trash after successful startup. Updating uses **Replace and open** in that same prompt. **Not now** leaves the app and installer unchanged. Routine installed launches have no setup prompts. Mounting a DMG alone cannot install or open an app.
 
 The default Mac build is **ad-hoc signed, not Developer ID signed or notarized**. If macOS blocks an app you trust, first try opening it, then use **System Settings → Privacy & Security → Open Anyway**, as described in [Apple's guide](https://support.apple.com/en-us/102445). The install helper cannot approve that decision for you. Windows builds are not certificate signed. Certificate-backed Mac signing and notarization require owner-supplied repository secrets; none are included in the template.
 
 For local desktop development, install Rust **1.99.0** and the [native build prerequisites](https://v2.tauri.app/start/prerequisites/), then run `npm run desktop:dev`. This builds and opens the bundled app. `npm run desktop:pack` creates a local application; `npm run desktop:build` creates the current platform's installer in `release/`. The locked Tauri CLI is **2.12.1**.
 
 For a future app, edit its branding and package name/version, then push a matching `v<version>` tag. **Build desktop downloads** checks the source, builds on four native runners, and publishes the complete installer set. [The desktop guide](docs/DESKTOP.md) covers local preview, packaging, identity, and signing. The browser preview remains available.
+
+Desktop builds automatically include native dependency credits and exact source archives for MPL dependencies, generated from the locked packages. All frontend fonts and both reference simulations remain included.
 
 ## Source and scope
 
